@@ -1,0 +1,267 @@
+basePath: /
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.License:
+    properties:
+      codigo:
+        type: string
+      codigo_compra:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nome:
+        type: string
+      quantidade:
+        description: Novo campo para múltiplas licenças
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+      validade:
+        type: integer
+    type: object
+  models.LicenseRequest:
+    properties:
+      codigo_compra:
+        example: 1234abef
+        type: string
+      email:
+        example: email do usuário
+        type: string
+      nome:
+        example: nome do usuário
+        type: string
+      quantidade:
+        description: Novo campo para múltiplas licenças
+        type: integer
+      validade:
+        example: 36
+        type: integer
+    type: object
+  models.Usuario:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      id:
+        type: integer
+      senha:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API para gerenciar licenças de software.
+  title: API de Licenças
+  version: "1.0"
+paths:
+  /atualizar-licenca:
+    put:
+      consumes:
+      - application/json
+      description: Atualiza o status de uma licença com base no código da licença.
+      parameters:
+      - description: Código da licença e novo status
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            codigo:
+              type: string
+            status:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status atualizado com sucesso
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Erro nos dados enviados
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Licença não encontrada
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Atualizar status da licença
+      tags:
+      - Licenças
+  /cadastrar-usuario:
+    post:
+      consumes:
+      - application/json
+      description: Cria um novo usuário no banco de dados.
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Usuario'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Usuário cadastrado com sucesso
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Erro nos dados enviados
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cadastro de usuário
+      tags:
+      - Autenticação
+  /criar-licencas:
+    post:
+      consumes:
+      - application/json
+      description: Gera uma ou mais licenças baseadas na compra e envia um único e-mail
+        com os códigos.
+      parameters:
+      - description: Dados da licença
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.LicenseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Licenças criadas com sucesso
+        "400":
+          description: Erro nos dados enviados
+        "401":
+          description: Não autorizado
+        "500":
+          description: Erro interno ao processar a licença
+      security:
+      - BearerAuth: []
+      summary: Criar licença(s)
+      tags:
+      - Licenças
+  /licencas:
+    get:
+      description: Retorna todas as licenças cadastradas ou filtra por código da compra.
+      parameters:
+      - description: Código da compra para filtrar
+        in: query
+        name: codigo_compra
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.License'
+            type: array
+        "401":
+          description: Não autorizado
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Lista licenças
+      tags:
+      - Licenças
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica o usuário e retorna um token JWT para acesso às rotas
+        protegidas.
+      parameters:
+      - description: Credenciais do usuário
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            senha:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token JWT
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Erro nos dados enviados
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Credenciais inválidas
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login do usuário
+      tags:
+      - Autenticação
+securityDefinitions:
+  BearerAuth:
+    description: Insira o token no formato `Bearer {seu_token}`
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
