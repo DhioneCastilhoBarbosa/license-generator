@@ -14,7 +14,7 @@ var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
-		println("Token recebido:", tokenString) // **Exibir o token recebido**
+		//println("Token recebido:", tokenString) // **Exibir o token recebido**
 
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token ausente"})
@@ -23,7 +23,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-		println("Token sem prefixo:", tokenString) // **Exibir o token sem "Bearer "**
+		//println("Token sem prefixo:", tokenString) // **Exibir o token sem "Bearer "**
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -33,7 +33,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			println("Erro ao validar token:", err.Error()) // **Exibir erro**
+			//println("Erro ao validar token:", err.Error()) // **Exibir erro**
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token inválido"})
 			c.Abort()
 			return
