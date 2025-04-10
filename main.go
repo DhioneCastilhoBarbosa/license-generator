@@ -7,6 +7,7 @@ import (
 	"cve-pro-license-api/middleware"
 	"cve-pro-license-api/models"
 	"cve-pro-license-api/utils"
+	"os"
 
 	"log"
 
@@ -32,9 +33,10 @@ import (
 // @description Insira o token no formato `Bearer {seu_token}`
 func main() {
 
-	err := godotenv.Load()
-	if err != nil {
-		panic("Erro ao carregar o arquivo .env")
+	if os.Getenv("ENV") != "production" {
+		if err := godotenv.Load(); err != nil {
+			log.Println("Arquivo .env não encontrado, usando variáveis do ambiente")
+		}
 	}
 
 	utils.SetupEmailConfig()
@@ -45,7 +47,7 @@ func main() {
 	c := cron.New()
 
 	// Executa a verificação todo dia às 02:00 da manhã
-	_, err = c.AddFunc("0 1 * * *", func() {
+	_, err := c.AddFunc("0 1 * * *", func() {
 		//_, err = c.AddFunc("@every 1m", func() { // Para teste, executa a cada 1 minuto
 		log.Println("Iniciando verificação de licenças expiradas...")
 		jobs.VerificarLicencasExpiradas()
