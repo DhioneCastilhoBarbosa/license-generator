@@ -75,5 +75,5 @@ func main() {
 		protected.GET("/licencas", controllers.ListarLicencas)
 	}
 
-	r.Run(":8080")
+	r.Run(":8085")
 }
