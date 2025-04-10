@@ -24,7 +24,7 @@ import (
 // @title API de Licenças
 // @version 1.0
 // @description API para gerenciar licenças de software.
-// @host localhost:8080
+// @host https://licenca-cve.api-castilho.com.br/
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @type apiKey
