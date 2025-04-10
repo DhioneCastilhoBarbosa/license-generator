@@ -53,7 +53,7 @@ definitions:
     type: object
   models.Usuario:
     type: object
-host: licenca-cve.api-castilho.com.br/
+host: licenca-cve.api-castilho.com.br
 info:
   contact: {}
   description: API para gerenciar licenças de software.
