@@ -296,27 +296,27 @@ const docTemplate = `{
                                 "type": "string"
                             }
                         }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
-                }
-            }
-        },
         "models.License": {
             "type": "object",
             "properties": {
+                "avisoExpiracaoEnviado": {
+                    "type": "boolean"
+                },
                 "codigo": {
                     "type": "string"
                 },
@@ -345,6 +345,9 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
+                "ultimoAvisoRenovacao": {
+                    "type": "boolean"
+                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -372,6 +375,10 @@ const docTemplate = `{
                     "description": "Novo campo para múltiplas licenças",
                     "type": "integer"
                 },
+                "teste": {
+                    "description": "opcional",
+                    "type": "boolean"
+                },
                 "validade": {
                     "type": "integer",
                     "example": 36
@@ -379,27 +386,7 @@ const docTemplate = `{
             }
         },
         "models.Usuario": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "senha": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         }
     },
     "securityDefinitions": {
@@ -415,7 +402,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "licenca-cve.api-castilho.com.br/",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "API de Licenças",

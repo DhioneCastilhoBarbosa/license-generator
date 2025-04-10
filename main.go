@@ -11,6 +11,7 @@ import (
 
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
@@ -24,7 +25,7 @@ import (
 // @title API de Licenças
 // @version 1.0
 // @description API para gerenciar licenças de software.
-// @host https://licenca-cve.api-castilho.com.br/
+// @host licenca-cve.api-castilho.com.br/
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @type apiKey
@@ -59,8 +60,9 @@ func main() {
 	c.Start()
 
 	r := gin.Default()
+	r.Use(cors.Default())
 	// Rota para documentação Swagger
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("/swagger/doc.json")))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("https://licenca-cve.api-castilho.com.br/swagger/doc.json")))
 
 	// Rotas para autenticação
 	r.POST("/cadastrar-usuario", controllers.CadastrarUsuario)

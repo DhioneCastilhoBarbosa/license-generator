@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "licenca-cve.api-castilho.com.br/",
     "basePath": "/",
     "paths": {
         "/atualizar-licenca": {
@@ -290,27 +290,27 @@
                                 "type": "string"
                             }
                         }
+                    },
+                    "403": {
+                        "description": "Usuário sem permissão",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "gorm.DeletedAt": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
-                    "type": "boolean"
-                }
-            }
-        },
         "models.License": {
             "type": "object",
             "properties": {
+                "avisoExpiracaoEnviado": {
+                    "type": "boolean"
+                },
                 "codigo": {
                     "type": "string"
                 },
@@ -339,6 +339,9 @@
                 "status": {
                     "type": "string"
                 },
+                "ultimoAvisoRenovacao": {
+                    "type": "boolean"
+                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -366,6 +369,10 @@
                     "description": "Novo campo para múltiplas licenças",
                     "type": "integer"
                 },
+                "teste": {
+                    "description": "opcional",
+                    "type": "boolean"
+                },
                 "validade": {
                     "type": "integer",
                     "example": 36
@@ -373,27 +380,7 @@
             }
         },
         "models.Usuario": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "deletedAt": {
-                    "$ref": "#/definitions/gorm.DeletedAt"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "senha": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         }
     },
     "securityDefinitions": {
