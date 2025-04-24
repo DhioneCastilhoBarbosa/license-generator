@@ -23,7 +23,7 @@ import (
 // @Failure 401 "Não autorizado"
 // @Failure 500 "Erro interno ao processar a licença"
 // @Security BearerAuth
-// @Router /criar-licencas [post]
+// @Router /criar-licenca [post]
 func CriarLicenca(c *gin.Context) {
 	var req models.LicenseRequest
 
