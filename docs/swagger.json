@@ -132,7 +132,7 @@
                 }
             }
         },
-        "/criar-licencas": {
+        "/criar-licenca": {
             "post": {
                 "security": [
                     {

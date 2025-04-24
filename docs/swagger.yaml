@@ -139,7 +139,7 @@ paths:
       summary: Cadastro de usuário
       tags:
       - Autenticação
-  /criar-licencas:
+  /criar-licenca:
     post:
       consumes:
       - application/json

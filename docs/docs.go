@@ -138,7 +138,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/criar-licencas": {
+        "/criar-licenca": {
             "post": {
                 "security": [
                     {
