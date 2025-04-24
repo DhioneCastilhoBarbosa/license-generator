@@ -12,7 +12,10 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
-require github.com/robfig/cron/v3 v3.0.1 // indirect
+require (
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/toorop/go-dkim v0.0.0-20201103131630-e1cd1a0a5208 // indirect
+)
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -48,6 +51,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
+	github.com/xhit/go-simple-mail/v2 v2.16.0
 	golang.org/x/arch v0.15.0 // indirect
 	golang.org/x/crypto v0.36.0
 	golang.org/x/net v0.38.0 // indirect
