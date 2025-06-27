@@ -5,19 +5,28 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
+	"os"
 	"strings"
 )
 
 func ValidarAssinaturaHMAC(secret string, corpo []byte, assinaturaRecebida string) bool {
-	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write(corpo)
-	expectedMAC := hex.EncodeToString(mac.Sum(nil))
+	usePayload := os.Getenv("USE_HMAC_WITH_PAYLOAD") != "false"
+
+	var mac []byte
+	if usePayload {
+		mac = gerarMAC([]byte(secret), corpo)
+	} else {
+		// Ignora o corpo, usa string vazia
+		mac = gerarMAC([]byte(secret), []byte(""))
+		log.Println("⚠️ Ignorando corpo do payload para HMAC (modo teste)")
+	}
+
+	expectedMAC := hex.EncodeToString(mac)
 
 	// Logs para debug
 	log.Println("🔐 HMAC esperado :", strings.ToLower(expectedMAC))
 	log.Println("🔐 HMAC recebido :", strings.ToLower(assinaturaRecebida))
 
-	// Normaliza para lowercase antes de comparar
 	return hmac.Equal(
 		[]byte(strings.ToLower(expectedMAC)),
 		[]byte(strings.ToLower(assinaturaRecebida)),
@@ -25,7 +34,18 @@ func ValidarAssinaturaHMAC(secret string, corpo []byte, assinaturaRecebida strin
 }
 
 func GerarAssinaturaHMAC(secret string, corpo []byte) string {
-	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write(corpo)
-	return hex.EncodeToString(mac.Sum(nil))
+	usePayload := os.Getenv("USE_HMAC_WITH_PAYLOAD") != "false"
+
+	if usePayload {
+		return hex.EncodeToString(gerarMAC([]byte(secret), corpo))
+	}
+
+	log.Println("⚠️ Ignorando corpo do payload para gerar HMAC (modo teste)")
+	return hex.EncodeToString(gerarMAC([]byte(secret), []byte("")))
+}
+
+func gerarMAC(secret, data []byte) []byte {
+	mac := hmac.New(sha256.New, secret)
+	mac.Write(data)
+	return mac.Sum(nil)
 }
