@@ -25,7 +25,7 @@ import (
 // @title API de Licenças
 // @version 1.0
 // @description API para gerenciar licenças de software.
-// @host licenca-cve.api-castilho.com.br
+// @host api-licenca.intelbras-cve-pro.com.br
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @type apiKey
@@ -62,7 +62,7 @@ func main() {
 	r := gin.Default()
 	r.Use(cors.Default())
 	// Rota para documentação Swagger
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("https://licenca-cve.api-castilho.com.br/swagger/doc.json")))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("https://api-licenca.intelbras-cve-pro.com.br/swagger/doc.json")))
 
 	// Rotas para autenticação
 	r.POST("/cadastrar-usuario", controllers.CadastrarUsuario)

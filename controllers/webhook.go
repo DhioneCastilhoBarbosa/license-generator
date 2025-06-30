@@ -150,7 +150,18 @@ func limparEmail(email string) string {
 	return email
 }
 
-// Webhook VTEX
+// VtexWebhook godoc
+// @Summary Webhook da VTEX para pedidos
+// @Description Recebe eventos da VTEX com dados do pedido e inicia o processo de geração de licença automática
+// @Tags Webhook
+// @Accept json
+// @Produce json
+// @Param X-VTEX-HMAC-SHA256 header string true "Assinatura HMAC do corpo da requisição"
+// @Param payload body VtexOrderEvent true "Evento de pedido VTEX"
+// @Success 200 {string} string "ok"
+// @Failure 400 {object} models.ErrorResponse "Erro ao ler body ou JSON inválido"
+// @Failure 401 {object} models.ErrorResponse "Assinatura inválida"
+// @Router /webhook/vtex [post]
 func VtexWebhook(c *gin.Context) {
 	secret := os.Getenv("VTEX_WEBHOOK_SECRET")
 	bodyBytes, err := io.ReadAll(c.Request.Body)

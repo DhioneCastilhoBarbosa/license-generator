@@ -1,5 +1,22 @@
 basePath: /
 definitions:
+  controllers.VtexOrderEvent:
+    properties:
+      currentState:
+        type: string
+      lastChange:
+        type: string
+      orderId:
+        type: string
+      salesChannel:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        example: mensagem de erro
+        type: string
+    type: object
   models.License:
     properties:
       avisoExpiracaoEnviado:
@@ -51,9 +68,16 @@ definitions:
         example: 36
         type: integer
     type: object
-  models.Usuario:
+  models.UsuarioRequest:
+    properties:
+      email:
+        example: teste@exemplo.com
+        type: string
+      senha:
+        example: "123456"
+        type: string
     type: object
-host: licenca-cve.api-castilho.com.br
+host: api-licenca.intelbras-cve-pro.com.br
 info:
   contact: {}
   description: API para gerenciar licenças de software.
@@ -120,7 +144,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Usuario'
+          $ref: '#/definitions/models.UsuarioRequest'
       produces:
       - application/json
       responses:
@@ -250,6 +274,42 @@ paths:
       summary: Login do usuário
       tags:
       - Autenticação
+  /webhook/vtex:
+    post:
+      consumes:
+      - application/json
+      description: Recebe eventos da VTEX com dados do pedido e inicia o processo
+        de geração de licença automática
+      parameters:
+      - description: Assinatura HMAC do corpo da requisição
+        in: header
+        name: X-VTEX-HMAC-SHA256
+        required: true
+        type: string
+      - description: Evento de pedido VTEX
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.VtexOrderEvent'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Erro ao ler body ou JSON inválido
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Assinatura inválida
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Webhook da VTEX para pedidos
+      tags:
+      - Webhook
 securityDefinitions:
   BearerAuth:
     description: Insira o token no formato `Bearer {seu_token}`

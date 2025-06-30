@@ -41,7 +41,7 @@ func gerarToken(email string) (string, error) {
 // @Tags Autenticação
 // @Accept json
 // @Produce json
-// @Param request body models.Usuario true "Dados do usuário"
+// @Param request body models.UsuarioRequest true "Dados do usuário"
 // @Success 200 {object} map[string]string "Usuário cadastrado com sucesso"
 // @Failure 400 {object} map[string]string "Erro nos dados enviados"
 // @Router /cadastrar-usuario [post]

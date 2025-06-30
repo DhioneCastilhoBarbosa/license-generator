@@ -60,7 +60,7 @@ Esta API permite gerar códigos de licença, notificando via e-mail sobre a cria
 Full API documentation is available via Swagger:  
 A documentação completa da API está disponível via Swagger:
 
-👉 [https://licenca-cve.api-castilho.com.br/swagger/index.html#/](https://licenca-cve.api-castilho.com.br/swagger/index.html#/)
+👉 [https://api-licenca.intelbras-cve-pro.com.br/swagger/index.html#/](https://api-licenca.intelbras-cve-pro.com.br/swagger/index.html#/)
 
 ---
 

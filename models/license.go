@@ -29,6 +29,11 @@ type LicenseRequest struct {
 	Teste        bool   `json:"teste"`      // opcional
 }
 
+// ErrorResponse representa uma mensagem de erro genérica
+type ErrorResponse struct {
+	Error string `json:"error" example:"mensagem de erro"`
+}
+
 const (
 	StatusCriada   = "Criada"
 	StatusAtivada  = "Ativada"

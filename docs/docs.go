@@ -112,7 +112,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Usuario"
+                            "$ref": "#/definitions/models.UsuarioRequest"
                         }
                     }
                 ],
@@ -308,9 +308,88 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/webhook/vtex": {
+            "post": {
+                "description": "Recebe eventos da VTEX com dados do pedido e inicia o processo de geração de licença automática",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Webhook"
+                ],
+                "summary": "Webhook da VTEX para pedidos",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Assinatura HMAC do corpo da requisição",
+                        "name": "X-VTEX-HMAC-SHA256",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Evento de pedido VTEX",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.VtexOrderEvent"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Erro ao ler body ou JSON inválido",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Assinatura inválida",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "controllers.VtexOrderEvent": {
+            "type": "object",
+            "properties": {
+                "currentState": {
+                    "type": "string"
+                },
+                "lastChange": {
+                    "type": "string"
+                },
+                "orderId": {
+                    "type": "string"
+                },
+                "salesChannel": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "mensagem de erro"
+                }
+            }
+        },
         "models.License": {
             "type": "object",
             "properties": {
@@ -385,8 +464,18 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Usuario": {
-            "type": "object"
+        "models.UsuarioRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "teste@exemplo.com"
+                },
+                "senha": {
+                    "type": "string",
+                    "example": "123456"
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -402,7 +491,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "licenca-cve.api-castilho.com.br",
+	Host:             "api-licenca.intelbras-cve-pro.com.br",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "API de Licenças",
