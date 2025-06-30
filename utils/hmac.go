@@ -16,7 +16,7 @@ func ValidarAssinaturaHMAC(secret string, _ []byte, assinaturaRecebida string) b
 	if useSHA256 {
 		hash := sha256.Sum256([]byte(secret))
 		expectedHash = hex.EncodeToString(hash[:])
-		log.Println("⚠️ Usando SHA256 puro da secret (modo inseguro)")
+		//log.Println("⚠️ Usando SHA256 puro da secret (modo inseguro)")
 	} else {
 		// Se não estiver ativado, retorna false
 		log.Println("🚫 Modo SHA256 puro da secret não ativado")
@@ -24,8 +24,8 @@ func ValidarAssinaturaHMAC(secret string, _ []byte, assinaturaRecebida string) b
 	}
 
 	// Logs para debug
-	log.Println("🔐 SHA256 esperado :", strings.ToLower(expectedHash))
-	log.Println("🔐 SHA256 recebido :", strings.ToLower(assinaturaRecebida))
+	//log.Println("🔐 SHA256 esperado :", strings.ToLower(expectedHash))
+	//log.Println("🔐 SHA256 recebido :", strings.ToLower(assinaturaRecebida))
 
 	return strings.EqualFold(expectedHash, assinaturaRecebida)
 }

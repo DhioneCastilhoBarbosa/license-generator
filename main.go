@@ -39,7 +39,7 @@ func main() {
 			log.Println("Arquivo .env não encontrado, usando variáveis do ambiente")
 		}
 	}
-
+	controllers.StartOrderWorker() // Inicia o worker para processar pedidos VTEX
 	utils.SetupEmailConfig()
 	// Inicializa o banco de dados
 	database.Conectar()
