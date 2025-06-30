@@ -274,7 +274,7 @@ paths:
       summary: Login do usuário
       tags:
       - Autenticação
-  /webhook/vtex:
+  /webhook/vtex-vendas:
     post:
       consumes:
       - application/json

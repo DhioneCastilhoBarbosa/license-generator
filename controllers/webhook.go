@@ -161,7 +161,7 @@ func limparEmail(email string) string {
 // @Success 200 {string} string "ok"
 // @Failure 400 {object} models.ErrorResponse "Erro ao ler body ou JSON inválido"
 // @Failure 401 {object} models.ErrorResponse "Assinatura inválida"
-// @Router /webhook/vtex [post]
+// @Router /webhook/vtex-vendas [post]
 func VtexWebhook(c *gin.Context) {
 	secret := os.Getenv("VTEX_WEBHOOK_SECRET")
 	bodyBytes, err := io.ReadAll(c.Request.Body)

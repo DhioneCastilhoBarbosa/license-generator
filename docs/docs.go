@@ -309,7 +309,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/webhook/vtex": {
+        "/webhook/vtex-vendas": {
             "post": {
                 "description": "Recebe eventos da VTEX com dados do pedido e inicia o processo de geração de licença automática",
                 "consumes": [
