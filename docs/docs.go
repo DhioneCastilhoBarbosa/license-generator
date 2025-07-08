@@ -190,7 +190,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retorna todas as licenças cadastradas ou filtra por código da compra.",
+                "description": "Retorna todas as licenças cadastradas ou filtra por código da compra e/ou código da licença.",
                 "produces": [
                     "application/json"
                 ],
@@ -203,6 +203,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Código da compra para filtrar",
                         "name": "codigo_compra",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Código da licença para filtrar",
+                        "name": "codigo",
                         "in": "query"
                     }
                 ],

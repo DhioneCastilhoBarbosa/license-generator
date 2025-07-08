@@ -132,12 +132,13 @@ func AtualizarStatusLicenca(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Status atualizado com sucesso"})
 }
 
-// ListarLicencas retorna todas as licenças ou filtra por código da compra.
+// ListarLicencas retorna todas as licenças ou filtra por código da compra ou código da licença.
 // @Summary Lista licenças
-// @Description Retorna todas as licenças cadastradas ou filtra por código da compra.
+// @Description Retorna todas as licenças cadastradas ou filtra por código da compra e/ou código da licença.
 // @Tags Licenças
 // @Produce json
 // @Param codigo_compra query string false "Código da compra para filtrar"
+// @Param codigo query string false "Código da licença para filtrar"
 // @Success 200 {array} models.License
 // @Failure 401 {object} map[string]string "Não autorizado"
 // @Failure 500 {object} map[string]string "Erro interno"
@@ -145,17 +146,22 @@ func AtualizarStatusLicenca(c *gin.Context) {
 // @Router /licencas [get]
 func ListarLicencas(c *gin.Context) {
 	var licencas []models.License
-	codigoCompra := c.Query("codigo_compra") // Pega o parâmetro opcional da query
+	codigoCompra := c.Query("codigo_compra")
+	codigoLicenca := c.Query("codigo")
 
-	query := database.DB
+	// Cria uma instância da query
+	db := database.DB
 
-	// Se o parâmetro "codigo_compra" for passado, filtra as licenças
+	// Adiciona filtros dinamicamente
 	if codigoCompra != "" {
-		query = query.Where("codigo_compra = ?", codigoCompra)
+		db = db.Where("codigo_compra = ?", codigoCompra)
+	}
+	if codigoLicenca != "" {
+		db = db.Where("codigo = ?", codigoLicenca)
 	}
 
-	// Busca as licenças no banco de dados
-	if err := query.Find(&licencas).Error; err != nil {
+	// Executa a busca
+	if err := db.Find(&licencas).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar licenças"})
 		return
 	}

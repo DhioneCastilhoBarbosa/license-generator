@@ -194,11 +194,16 @@ paths:
       - Licenças
   /licencas:
     get:
-      description: Retorna todas as licenças cadastradas ou filtra por código da compra.
+      description: Retorna todas as licenças cadastradas ou filtra por código da compra
+        e/ou código da licença.
       parameters:
       - description: Código da compra para filtrar
         in: query
         name: codigo_compra
+        type: string
+      - description: Código da licença para filtrar
+        in: query
+        name: codigo
         type: string
       produces:
       - application/json
