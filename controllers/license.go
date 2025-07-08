@@ -117,6 +117,18 @@ func AtualizarStatusLicenca(c *gin.Context) {
 		return
 	}
 
+	// Bloqueia alteração caso a licença esteja expirada
+	if licenca.Status == models.StatusExpirada {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Não é possível alterar o status de uma licença expirada"})
+		return
+	}
+
+	// Bloqueia reativação de uma licença já ativada
+	if req.Status == models.StatusAtivada && licenca.Status == models.StatusAtivada {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "A licença já está ativada"})
+		return
+	}
+
 	licenca.Status = req.Status
 
 	if req.Status == models.StatusAtivada && req.Teste {
