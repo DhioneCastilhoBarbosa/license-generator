@@ -43,7 +43,7 @@ func main() {
 	utils.SetupEmailConfig()
 	// Inicializa o banco de dados
 	database.Conectar()
-	database.DB.AutoMigrate(&models.License{}, &models.Usuario{})
+	database.DB.AutoMigrate(&models.License{}, &models.Usuario{}, &models.Chave{})
 
 	c := cron.New()
 
@@ -68,6 +68,8 @@ func main() {
 	r.POST("/cadastrar-usuario", controllers.CadastrarUsuario)
 	r.POST("/login", controllers.Login)
 	r.POST("/webhook/vtex-vendas", controllers.VtexWebhook)
+	r.POST("/criar-acesso", controllers.CriarChave)
+	r.GET("/recuperar-chave", controllers.RecuperarChaves)
 
 	// Rotas protegidas com autenticação
 	protected := r.Group("/")
@@ -76,6 +78,8 @@ func main() {
 		protected.POST("/criar-licenca", controllers.CriarLicenca)
 		protected.PUT("/atualizar-licenca", controllers.AtualizarStatusLicenca)
 		protected.GET("/licencas", controllers.ListarLicencas)
+		protected.GET("/chaves", controllers.ListarChaves)
+		protected.PUT("/atualizar-status-chave", controllers.AtualizarStatusChave)
 	}
 
 	r.Run(":8085")

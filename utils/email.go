@@ -124,3 +124,23 @@ func EnviarAvisoExpiracao(destinatario, nome, codigo string) error {
 
 	return sendEmail(destinatario, "Sua Licença Intelbras CVE-Pro expirou", body)
 }
+
+func EnviarEmailChave(destinatario, nome, chave string) error {
+	body := fmt.Sprintf(`<div style="font-family: Arial, sans-serif; background-color: #f4f4f4;">
+	<div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px;">
+		<div style="background-color: #00a335; color: #ffffff; padding: 20px; text-align: center;">
+			<h1>Chave de Acesso CVE-Pro</h1>
+		</div>
+		<div style="padding: 20px; color: #333333;">
+			<p>Olá, <strong>%s</strong>,</p>
+			<p>Sua chave de acesso é: <strong>%s</strong></p>
+			<p>Utilize-a para acessar a plataforma CVE-Pro.</p>
+		</div>
+		<div style="background-color: #f4f4f4; color: #555555; text-align: center; padding: 10px;">
+			<p>Este é um e-mail automático, por favor, não responda.</p>
+			<p>Intelbras &copy; 2025</p>
+		</div>
+	</div>
+</div>`, nome, chave)
+	return sendEmail(destinatario, "Sua Chave de Acesso a Plataforma Intelbras CVE", body)
+}

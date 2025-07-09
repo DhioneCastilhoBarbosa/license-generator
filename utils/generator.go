@@ -17,3 +17,16 @@ func GerarCodigo(meses int) string {
 
 	return fmt.Sprintf("%dM-%s", meses, randomPart)
 }
+
+// GerarChave gera uma chave única
+
+func GerarChave() string {
+	bytes := make([]byte, 10)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
+	}
+	randomPart := hex.EncodeToString(bytes)
+
+	return fmt.Sprintf("CVE-%s", randomPart)
+}
