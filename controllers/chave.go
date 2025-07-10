@@ -9,6 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CriarChave cria uma nova chave de acesso e envia por e-mail.
+// @Summary Criar chave de acesso
+// @Description Gera uma chave de acesso única e envia por e-mail.
+// @Tags Chaves de Acesso
+// @Accept json
+// @Produce json
+// @Param request body models.ChaveRequest true "Dados da chave de acesso"
+// @Success 201 "Chave criada com sucesso"
+// @Failure 400 "Erro nos dados enviados"
+// @Failure 500 "Erro interno ao processar a chave de acesso"
+// @Router /criar-chave [post]
 func CriarChave(c *gin.Context) {
 	var req models.ChaveRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -45,6 +56,19 @@ func CriarChave(c *gin.Context) {
 
 }
 
+// AtualizarStatusChave atualiza o status de uma chave de acesso existente.
+// @Summary Atualizar status da chave de acesso
+// @Description Atualiza o status de uma chave de acesso existente.
+// @Tags Chaves de Acesso
+// @Accept json
+// @Produce json
+// @Param request body models.AtualizarChaveRequest true "Dados da chave de acesso"
+// @Success 200 "Status atualizado com sucesso"
+// @Failure 400 "Erro nos dados enviados"
+// @Failure 404 "Chave não encontrada"
+// @Failure 500 "Erro interno ao atualizar status da chave de acesso"
+// @Router /atualizar-chave [put]
+// @Security BearerAuth
 func AtualizarStatusChave(c *gin.Context) {
 	var req struct {
 		Chave  string `json:"chave"`
@@ -94,6 +118,19 @@ func AtualizarStatusChave(c *gin.Context) {
 	})
 }
 
+// ListarChaves lista todas as chaves de acesso, podendo filtrar por email ou CPF.
+// @Summary Listar chaves de acesso
+// @Description Lista todas as chaves de acesso cadastradas, com opção de filtrar por email ou CPF.
+// @Tags Chaves de Acesso
+// @Accept json
+// @Produce json
+// @Param email query string false "Filtrar por email"
+// @Param cpf query string false "Filtrar por CPF"
+// @Success 200 {array} models.Chave "Lista de chaves de acesso"
+// @Failure 500 "Erro interno ao buscar chaves de acesso"
+// @Failure 404 "Nenhuma chave de acesso encontrada"
+// @Router /chaves [get]
+// @Security BearerAuth
 func ListarChaves(c *gin.Context) {
 	var chaves []models.Chave
 	Email := c.Query("email")
@@ -121,6 +158,18 @@ func ListarChaves(c *gin.Context) {
 	c.JSON(http.StatusOK, chaves)
 }
 
+// RecuperarChaves busca chaves de acesso por email e envia a chave gerada por e-mail.
+// @Summary Recuperar chaves de acesso
+// @Description Busca chaves de acesso por email e envia a chave gerada por e-mail
+// @Tags Chaves de Acesso
+// @Accept json
+// @Produce json
+// @Param email query string true "Email do usuário"
+// @Success 200 "Chave de acesso enviada com sucesso"
+// @Failure 400 "Email inválido"
+// @Failure 404 "Nenhuma chave de acesso encontrada"
+// @Failure 500 "Erro interno ao enviar e-mail"
+// @Router /recuperar-chave [get]
 func RecuperarChaves(c *gin.Context) {
 	var chaves []models.Chave
 	Email := c.Query("email")

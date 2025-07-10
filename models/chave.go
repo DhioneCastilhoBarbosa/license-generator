@@ -23,3 +23,9 @@ type ChaveRequest struct {
 	Status string `json:"status" example:"Criada"`
 	Conta  string `json:"conta" example:"Conta de exemplo"`
 }
+
+type AtualizarChaveRequest struct {
+	Chave  string `json:"chave" example:"chave-1234"`
+	Status string `json:"status" example:"Ativada"`
+	Conta  string `json:"conta" example:"Conta de exemplo"`
+}

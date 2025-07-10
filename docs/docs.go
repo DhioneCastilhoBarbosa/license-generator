@@ -15,6 +15,51 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/atualizar-chave": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Atualiza o status de uma chave de acesso existente.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chaves de Acesso"
+                ],
+                "summary": "Atualizar status da chave de acesso",
+                "parameters": [
+                    {
+                        "description": "Dados da chave de acesso",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AtualizarChaveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status atualizado com sucesso"
+                    },
+                    "400": {
+                        "description": "Erro nos dados enviados"
+                    },
+                    "404": {
+                        "description": "Chave não encontrada"
+                    },
+                    "500": {
+                        "description": "Erro interno ao atualizar status da chave de acesso"
+                    }
+                }
+            }
+        },
         "/atualizar-licenca": {
             "put": {
                 "security": [
@@ -134,6 +179,94 @@ const docTemplate = `{
                                 "type": "string"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/chaves": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lista todas as chaves de acesso cadastradas, com opção de filtrar por email ou CPF.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chaves de Acesso"
+                ],
+                "summary": "Listar chaves de acesso",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filtrar por email",
+                        "name": "email",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filtrar por CPF",
+                        "name": "cpf",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de chaves de acesso",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Chave"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nenhuma chave de acesso encontrada"
+                    },
+                    "500": {
+                        "description": "Erro interno ao buscar chaves de acesso"
+                    }
+                }
+            }
+        },
+        "/criar-chave": {
+            "post": {
+                "description": "Gera uma chave de acesso única e envia por e-mail.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chaves de Acesso"
+                ],
+                "summary": "Criar chave de acesso",
+                "parameters": [
+                    {
+                        "description": "Dados da chave de acesso",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ChaveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Chave criada com sucesso"
+                    },
+                    "400": {
+                        "description": "Erro nos dados enviados"
+                    },
+                    "500": {
+                        "description": "Erro interno ao processar a chave de acesso"
                     }
                 }
             }
@@ -315,6 +448,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/recuperar-chave": {
+            "get": {
+                "description": "Busca chaves de acesso por email e envia a chave gerada por e-mail",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chaves de Acesso"
+                ],
+                "summary": "Recuperar chaves de acesso",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email do usuário",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chave de acesso enviada com sucesso"
+                    },
+                    "400": {
+                        "description": "Email inválido"
+                    },
+                    "404": {
+                        "description": "Nenhuma chave de acesso encontrada"
+                    },
+                    "500": {
+                        "description": "Erro interno ao enviar e-mail"
+                    }
+                }
+            }
+        },
         "/webhook/vtex-vendas": {
             "post": {
                 "description": "Recebe eventos da VTEX com dados do pedido e inicia o processo de geração de licença automática",
@@ -384,6 +555,87 @@ const docTemplate = `{
                 },
                 "salesChannel": {
                     "type": "string"
+                }
+            }
+        },
+        "models.AtualizarChaveRequest": {
+            "type": "object",
+            "properties": {
+                "chave": {
+                    "type": "string",
+                    "example": "chave-1234"
+                },
+                "conta": {
+                    "type": "string",
+                    "example": "Conta de exemplo"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Ativada"
+                }
+            }
+        },
+        "models.Chave": {
+            "type": "object",
+            "properties": {
+                "chave": {
+                    "type": "string"
+                },
+                "conta": {
+                    "type": "string"
+                },
+                "cpf": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ChaveRequest": {
+            "type": "object",
+            "properties": {
+                "chave": {
+                    "type": "string",
+                    "example": "chave-1234"
+                },
+                "conta": {
+                    "type": "string",
+                    "example": "Conta de exemplo"
+                },
+                "cpf": {
+                    "type": "string",
+                    "example": "12345678901"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "email do usuário"
+                },
+                "nome": {
+                    "type": "string",
+                    "example": "nome do usuário"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Criada"
                 }
             }
         },

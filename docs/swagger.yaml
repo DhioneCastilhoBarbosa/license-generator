@@ -11,6 +11,62 @@ definitions:
       salesChannel:
         type: string
     type: object
+  models.AtualizarChaveRequest:
+    properties:
+      chave:
+        example: chave-1234
+        type: string
+      conta:
+        example: Conta de exemplo
+        type: string
+      status:
+        example: Ativada
+        type: string
+    type: object
+  models.Chave:
+    properties:
+      chave:
+        type: string
+      conta:
+        type: string
+      cpf:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nome:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.ChaveRequest:
+    properties:
+      chave:
+        example: chave-1234
+        type: string
+      conta:
+        example: Conta de exemplo
+        type: string
+      cpf:
+        example: "12345678901"
+        type: string
+      email:
+        example: email do usuário
+        type: string
+      nome:
+        example: nome do usuário
+        type: string
+      status:
+        example: Criada
+        type: string
+    type: object
   models.ErrorResponse:
     properties:
       error:
@@ -84,6 +140,34 @@ info:
   title: API de Licenças
   version: "1.0"
 paths:
+  /atualizar-chave:
+    put:
+      consumes:
+      - application/json
+      description: Atualiza o status de uma chave de acesso existente.
+      parameters:
+      - description: Dados da chave de acesso
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AtualizarChaveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status atualizado com sucesso
+        "400":
+          description: Erro nos dados enviados
+        "404":
+          description: Chave não encontrada
+        "500":
+          description: Erro interno ao atualizar status da chave de acesso
+      security:
+      - BearerAuth: []
+      summary: Atualizar status da chave de acesso
+      tags:
+      - Chaves de Acesso
   /atualizar-licenca:
     put:
       consumes:
@@ -163,6 +247,63 @@ paths:
       summary: Cadastro de usuário
       tags:
       - Autenticação
+  /chaves:
+    get:
+      consumes:
+      - application/json
+      description: Lista todas as chaves de acesso cadastradas, com opção de filtrar
+        por email ou CPF.
+      parameters:
+      - description: Filtrar por email
+        in: query
+        name: email
+        type: string
+      - description: Filtrar por CPF
+        in: query
+        name: cpf
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista de chaves de acesso
+          schema:
+            items:
+              $ref: '#/definitions/models.Chave'
+            type: array
+        "404":
+          description: Nenhuma chave de acesso encontrada
+        "500":
+          description: Erro interno ao buscar chaves de acesso
+      security:
+      - BearerAuth: []
+      summary: Listar chaves de acesso
+      tags:
+      - Chaves de Acesso
+  /criar-chave:
+    post:
+      consumes:
+      - application/json
+      description: Gera uma chave de acesso única e envia por e-mail.
+      parameters:
+      - description: Dados da chave de acesso
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChaveRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Chave criada com sucesso
+        "400":
+          description: Erro nos dados enviados
+        "500":
+          description: Erro interno ao processar a chave de acesso
+      summary: Criar chave de acesso
+      tags:
+      - Chaves de Acesso
   /criar-licenca:
     post:
       consumes:
@@ -279,6 +420,31 @@ paths:
       summary: Login do usuário
       tags:
       - Autenticação
+  /recuperar-chave:
+    get:
+      consumes:
+      - application/json
+      description: Busca chaves de acesso por email e envia a chave gerada por e-mail
+      parameters:
+      - description: Email do usuário
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Chave de acesso enviada com sucesso
+        "400":
+          description: Email inválido
+        "404":
+          description: Nenhuma chave de acesso encontrada
+        "500":
+          description: Erro interno ao enviar e-mail
+      summary: Recuperar chaves de acesso
+      tags:
+      - Chaves de Acesso
   /webhook/vtex-vendas:
     post:
       consumes:
