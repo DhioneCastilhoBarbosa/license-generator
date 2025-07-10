@@ -15,51 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/atualizar-chave": {
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Atualiza o status de uma chave de acesso existente.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Chaves de Acesso"
-                ],
-                "summary": "Atualizar status da chave de acesso",
-                "parameters": [
-                    {
-                        "description": "Dados da chave de acesso",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.AtualizarChaveRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Status atualizado com sucesso"
-                    },
-                    "400": {
-                        "description": "Erro nos dados enviados"
-                    },
-                    "404": {
-                        "description": "Chave não encontrada"
-                    },
-                    "500": {
-                        "description": "Erro interno ao atualizar status da chave de acesso"
-                    }
-                }
-            }
-        },
         "/atualizar-licenca": {
             "put": {
                 "security": [
@@ -133,6 +88,51 @@ const docTemplate = `{
                                 "type": "string"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/atualizar-status-chave": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Atualiza o status de uma chave de acesso existente.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chaves de Acesso"
+                ],
+                "summary": "Atualizar status da chave de acesso",
+                "parameters": [
+                    {
+                        "description": "Dados da chave de acesso",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AtualizarChaveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status atualizado com sucesso"
+                    },
+                    "400": {
+                        "description": "Erro nos dados enviados"
+                    },
+                    "404": {
+                        "description": "Chave não encontrada"
+                    },
+                    "500": {
+                        "description": "Erro interno ao atualizar status da chave de acesso"
                     }
                 }
             }

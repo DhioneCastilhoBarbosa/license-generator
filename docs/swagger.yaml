@@ -140,34 +140,6 @@ info:
   title: API de Licenças
   version: "1.0"
 paths:
-  /atualizar-chave:
-    put:
-      consumes:
-      - application/json
-      description: Atualiza o status de uma chave de acesso existente.
-      parameters:
-      - description: Dados da chave de acesso
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/models.AtualizarChaveRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Status atualizado com sucesso
-        "400":
-          description: Erro nos dados enviados
-        "404":
-          description: Chave não encontrada
-        "500":
-          description: Erro interno ao atualizar status da chave de acesso
-      security:
-      - BearerAuth: []
-      summary: Atualizar status da chave de acesso
-      tags:
-      - Chaves de Acesso
   /atualizar-licenca:
     put:
       consumes:
@@ -217,6 +189,34 @@ paths:
       summary: Atualizar status da licença
       tags:
       - Licenças
+  /atualizar-status-chave:
+    put:
+      consumes:
+      - application/json
+      description: Atualiza o status de uma chave de acesso existente.
+      parameters:
+      - description: Dados da chave de acesso
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AtualizarChaveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status atualizado com sucesso
+        "400":
+          description: Erro nos dados enviados
+        "404":
+          description: Chave não encontrada
+        "500":
+          description: Erro interno ao atualizar status da chave de acesso
+      security:
+      - BearerAuth: []
+      summary: Atualizar status da chave de acesso
+      tags:
+      - Chaves de Acesso
   /cadastrar-usuario:
     post:
       consumes:

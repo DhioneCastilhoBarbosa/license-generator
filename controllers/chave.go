@@ -67,7 +67,7 @@ func CriarChave(c *gin.Context) {
 // @Failure 400 "Erro nos dados enviados"
 // @Failure 404 "Chave não encontrada"
 // @Failure 500 "Erro interno ao atualizar status da chave de acesso"
-// @Router /atualizar-chave [put]
+// @Router /atualizar-status-chave [put]
 // @Security BearerAuth
 func AtualizarStatusChave(c *gin.Context) {
 	var req struct {
