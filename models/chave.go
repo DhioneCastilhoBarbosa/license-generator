@@ -29,3 +29,9 @@ type AtualizarChaveRequest struct {
 	Status string `json:"status" example:"Ativada"`
 	Conta  string `json:"conta" example:"Conta de exemplo"`
 }
+
+type CriarChaveRequest struct {
+	Nome  string `json:"nome" example:"nome do usuário"`
+	Email string `json:"email" example:"email do usuário"`
+	CPF   string `json:"cpf" example:"12345678901"`
+}

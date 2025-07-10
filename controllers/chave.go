@@ -15,7 +15,7 @@ import (
 // @Tags Chaves de Acesso
 // @Accept json
 // @Produce json
-// @Param request body models.ChaveRequest true "Dados da chave de acesso"
+// @Param request body models.CriarChaveRequest true "Dados da chave de acesso"
 // @Success 201 "Chave criada com sucesso"
 // @Failure 400 "Erro nos dados enviados"
 // @Failure 500 "Erro interno ao processar a chave de acesso"
