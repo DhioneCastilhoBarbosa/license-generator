@@ -46,14 +46,8 @@ definitions:
       updated_at:
         type: string
     type: object
-  models.ChaveRequest:
+  models.CriarChaveRequest:
     properties:
-      chave:
-        example: chave-1234
-        type: string
-      conta:
-        example: Conta de exemplo
-        type: string
       cpf:
         example: "12345678901"
         type: string
@@ -62,9 +56,6 @@ definitions:
         type: string
       nome:
         example: nome do usuário
-        type: string
-      status:
-        example: Criada
         type: string
     type: object
   models.ErrorResponse:
@@ -291,7 +282,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.ChaveRequest'
+          $ref: '#/definitions/models.CriarChaveRequest'
       produces:
       - application/json
       responses:

@@ -248,7 +248,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ChaveRequest"
+                            "$ref": "#/definitions/models.CriarChaveRequest"
                         }
                     }
                 ],
@@ -604,17 +604,9 @@
                 }
             }
         },
-        "models.ChaveRequest": {
+        "models.CriarChaveRequest": {
             "type": "object",
             "properties": {
-                "chave": {
-                    "type": "string",
-                    "example": "chave-1234"
-                },
-                "conta": {
-                    "type": "string",
-                    "example": "Conta de exemplo"
-                },
                 "cpf": {
                     "type": "string",
                     "example": "12345678901"
@@ -626,10 +618,6 @@
                 "nome": {
                     "type": "string",
                     "example": "nome do usuário"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "Criada"
                 }
             }
         },

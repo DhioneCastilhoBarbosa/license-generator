@@ -254,7 +254,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ChaveRequest"
+                            "$ref": "#/definitions/models.CriarChaveRequest"
                         }
                     }
                 ],
@@ -610,17 +610,9 @@ const docTemplate = `{
                 }
             }
         },
-        "models.ChaveRequest": {
+        "models.CriarChaveRequest": {
             "type": "object",
             "properties": {
-                "chave": {
-                    "type": "string",
-                    "example": "chave-1234"
-                },
-                "conta": {
-                    "type": "string",
-                    "example": "Conta de exemplo"
-                },
                 "cpf": {
                     "type": "string",
                     "example": "12345678901"
@@ -632,10 +624,6 @@ const docTemplate = `{
                 "nome": {
                     "type": "string",
                     "example": "nome do usuário"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "Criada"
                 }
             }
         },
