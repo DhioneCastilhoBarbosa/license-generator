@@ -60,6 +60,12 @@ func main() {
 	c.Start()
 
 	r := gin.Default()
+	// Configuração do CORS
+	// Permite que a API seja acessada de qualquer origem
+	// Isso é útil para desenvolvimento, mas deve ser restrito em produção
+	// para evitar problemas de segurança.
+	// Em produção, considere restringir as origens permitidas.
+	// Exemplo: r.Use(cors.New(cors.Config{AllowOrigins: []string{"https://seu-dominio.com"}}))
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"}, // permite qualquer origem
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
