@@ -75,7 +75,7 @@ func main() {
 	r.POST("/cadastrar-usuario", controllers.CadastrarUsuario)
 	r.POST("/login", controllers.Login)
 	r.POST("/webhook/vtex-vendas", controllers.VtexWebhook)
-	r.POST("/criar-acesso", controllers.CriarChave)
+	r.POST("/criar-chave", controllers.CriarChave)
 	r.GET("/recuperar-chave", controllers.RecuperarChaves)
 
 	// Rotas protegidas com autenticação
