@@ -89,5 +89,5 @@ func main() {
 		protected.PUT("/atualizar-status-chave", controllers.AtualizarStatusChave)
 	}
 
-	r.Run(":8085")
+	r.Run(":8085") // Inicia o servidor na porta 8085
 }
