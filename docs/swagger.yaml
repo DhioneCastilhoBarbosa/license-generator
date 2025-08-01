@@ -275,7 +275,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Gera uma chave de acesso única e envia por e-mail.
+      description: Gera uma chave de acesso única e envia por e-mail, caso o CPF ainda
+        não esteja cadastrado.
       parameters:
       - description: Dados da chave de acesso
         in: body
@@ -288,10 +289,21 @@ paths:
       responses:
         "201":
           description: Chave criada com sucesso
+          schema:
+            additionalProperties: true
+            type: object
         "400":
-          description: Erro nos dados enviados
+          description: CPF já cadastrado
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
-          description: Erro interno ao processar a chave de acesso
+          description: Erro interno ao processar a chave de acesso ou enviar o e-mail
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Criar chave de acesso
       tags:
       - Chaves de Acesso

@@ -11,25 +11,32 @@ import (
 
 // CriarChave cria uma nova chave de acesso e envia por e-mail.
 // @Summary Criar chave de acesso
-// @Description Gera uma chave de acesso única e envia por e-mail.
+// @Description Gera uma chave de acesso única e envia por e-mail, caso o CPF ainda não esteja cadastrado.
 // @Tags Chaves de Acesso
 // @Accept json
 // @Produce json
 // @Param request body models.CriarChaveRequest true "Dados da chave de acesso"
-// @Success 201 "Chave criada com sucesso"
-// @Failure 400 "Erro nos dados enviados"
-// @Failure 500 "Erro interno ao processar a chave de acesso"
+// @Success 201 {object} map[string]interface{} "Chave criada com sucesso"
+// @Failure 400 {object} map[string]string "CPF já cadastrado"
+// @Failure 500 {object} map[string]string "Erro interno ao processar a chave de acesso ou enviar o e-mail"
 // @Router /criar-chave [post]
 func CriarChave(c *gin.Context) {
 	var req models.ChaveRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos"})
+		return
 	}
 
-	var chaveGerada string
-	statusInicial := "Criada" // Defina o status inicial da chave
+	// Verifica se já existe uma chave com o mesmo CPF
+	var existente models.Chave
+	if err := database.DB.Where("cpf = ?", req.CPF).First(&existente).Error; err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Já existe um cadastro com este CPF"})
+		return
+	}
 
-	chaveGerada = utils.GerarChave() // Função para gerar uma chave única
+	// Gerar chave e status
+	chaveGerada := utils.GerarChave()
+	statusInicial := "Criada"
 
 	chave := models.Chave{
 		Nome:   req.Nome,
@@ -44,16 +51,16 @@ func CriarChave(c *gin.Context) {
 		return
 	}
 
-	err := utils.EnviarEmailChave(req.Email, req.Nome, chaveGerada)
-	if err != nil {
+	if err := utils.EnviarEmailChave(req.Email, req.Nome, chaveGerada); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao enviar e-mail", "detalhes": err.Error()})
+		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Chave criada com sucesso",
 		"chave":   chave.Chave,
 		"status":  chave.Status,
 	})
-
 }
 
 // AtualizarStatusChave atualiza o status de uma chave de acesso existente.

@@ -230,7 +230,7 @@
         },
         "/criar-chave": {
             "post": {
-                "description": "Gera uma chave de acesso única e envia por e-mail.",
+                "description": "Gera uma chave de acesso única e envia por e-mail, caso o CPF ainda não esteja cadastrado.",
                 "consumes": [
                     "application/json"
                 ],
@@ -254,13 +254,29 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Chave criada com sucesso"
+                        "description": "Chave criada com sucesso",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
                     },
                     "400": {
-                        "description": "Erro nos dados enviados"
+                        "description": "CPF já cadastrado",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     },
                     "500": {
-                        "description": "Erro interno ao processar a chave de acesso"
+                        "description": "Erro interno ao processar a chave de acesso ou enviar o e-mail",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
