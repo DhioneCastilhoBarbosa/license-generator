@@ -137,6 +137,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/buscar-chave": {
+            "get": {
+                "description": "Retorna os dados de uma chave de acesso com base na chave, CPF ou email.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chaves de Acesso"
+                ],
+                "summary": "Buscar chave de acesso",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Chave de acesso",
+                        "name": "chave",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CPF do usuário",
+                        "name": "cpf",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Email do usuário",
+                        "name": "email",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dados da chave de acesso",
+                        "schema": {
+                            "$ref": "#/definitions/models.Chave"
+                        }
+                    },
+                    "400": {
+                        "description": "Parâmetros inválidos"
+                    },
+                    "404": {
+                        "description": "Chave de acesso não encontrada"
+                    },
+                    "500": {
+                        "description": "Erro interno ao buscar chave de acesso"
+                    }
+                }
+            }
+        },
         "/cadastrar-usuario": {
             "post": {
                 "description": "Cria um novo usuário no banco de dados.",

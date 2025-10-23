@@ -208,6 +208,41 @@ paths:
       summary: Atualizar status da chave de acesso
       tags:
       - Chaves de Acesso
+  /buscar-chave:
+    get:
+      consumes:
+      - application/json
+      description: Retorna os dados de uma chave de acesso com base na chave, CPF
+        ou email.
+      parameters:
+      - description: Chave de acesso
+        in: query
+        name: chave
+        type: string
+      - description: CPF do usuário
+        in: query
+        name: cpf
+        type: string
+      - description: Email do usuário
+        in: query
+        name: email
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Dados da chave de acesso
+          schema:
+            $ref: '#/definitions/models.Chave'
+        "400":
+          description: Parâmetros inválidos
+        "404":
+          description: Chave de acesso não encontrada
+        "500":
+          description: Erro interno ao buscar chave de acesso
+      summary: Buscar chave de acesso
+      tags:
+      - Chaves de Acesso
   /cadastrar-usuario:
     post:
       consumes:
