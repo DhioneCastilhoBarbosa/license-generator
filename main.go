@@ -87,6 +87,7 @@ func main() {
 		protected.GET("/licencas", controllers.ListarLicencas)
 		protected.GET("/chaves", controllers.ListarChaves)
 		protected.PUT("/atualizar-status-chave", controllers.AtualizarStatusChave)
+		protected.GET("buscar-chave", controllers.BuscarChave)
 	}
 
 	r.Run(":8085") // Inicia o servidor na porta 8085

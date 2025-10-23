@@ -209,3 +209,64 @@ func RecuperarChaves(c *gin.Context) {
 		"message": "Chave de acesso enviada com sucesso"})
 
 }
+
+// BuscarChave busca uma chave de acesso específica por chave, CPF ou email.
+// @Summary Buscar chave de acesso
+// @Description Retorna os dados de uma chave de acesso com base na chave, CPF ou email.
+// @Tags Chaves de Acesso
+// @Accept json
+// @Produce json
+// @Param chave query string false "Chave de acesso"
+// @Param cpf query string false "CPF do usuário"
+// @Param email query string false "Email do usuário"
+// @Success 200 {object} models.Chave "Dados da chave de acesso"
+// @Failure 400 "Parâmetros inválidos"
+// @Failure 404 "Chave de acesso não encontrada"
+// @Failure 500 "Erro interno ao buscar chave de acesso"
+// @Router /buscar-chave [get]
+func BuscarChave(c *gin.Context) {
+	chaveParam := c.Query("chave")
+	cpfParam := c.Query("cpf")
+	emailParam := c.Query("email")
+
+	// Conta quantos parâmetros foram enviados
+	paramCount := 0
+	if chaveParam != "" {
+		paramCount++
+	}
+	if cpfParam != "" {
+		paramCount++
+	}
+	if emailParam != "" {
+		paramCount++
+	}
+
+	// Valida se há exatamente um parâmetro
+	if paramCount == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Informe chave, CPF ou email"})
+		return
+	}
+	if paramCount > 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Use apenas um parâmetro por vez (chave, CPF ou email)"})
+		return
+	}
+
+	var chave models.Chave
+	query := database.DB
+
+	switch {
+	case chaveParam != "":
+		query = query.Where("chave = ?", chaveParam)
+	case cpfParam != "":
+		query = query.Where("cpf = ?", cpfParam)
+	case emailParam != "":
+		query = query.Where("email = ?", emailParam)
+	}
+
+	if err := query.First(&chave).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Chave de acesso não encontrada"})
+		return
+	}
+
+	c.JSON(http.StatusOK, chave)
+}

@@ -15,6 +15,7 @@ type Chave struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty" gorm:"index"`
 }
 
+
 type ChaveRequest struct {
 	Nome   string `json:"nome" example:"nome do usuário"`
 	Email  string `json:"email" example:"email do usuário"`
