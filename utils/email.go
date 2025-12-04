@@ -134,7 +134,7 @@ func EnviarEmailChave(destinatario, nome, chave string) error {
 		<div style="padding: 20px; color: #333333;">
 			<p>Olá, <strong>%s</strong>,</p>
 			<p>Sua chave de acesso é: <strong>%s</strong></p>
-			<p>Utilize-a para acessar a plataforma CVE-Pro.</p>
+			<p>Use esta chave para criar sua conta na plataforma Intelbras CVE. <a href="https://intelbras-cve-pro.com.br/" target="_blank">Clique aqui para acessar.</a></p>
 		</div>
 		<div style="background-color: #f4f4f4; color: #555555; text-align: center; padding: 10px;">
 			<p>Este é um e-mail automático, por favor, não responda.</p>
