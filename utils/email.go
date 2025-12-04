@@ -129,12 +129,13 @@ func EnviarEmailChave(destinatario, nome, chave string) error {
 	body := fmt.Sprintf(`<div style="font-family: Arial, sans-serif; background-color: #f4f4f4;">
 	<div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px;">
 		<div style="background-color: #00a335; color: #ffffff; padding: 20px; text-align: center;">
-			<h1>Chave de Acesso CVE-Pro</h1>
+			<h1>Chave de Acesso para Criação de Conta Intelbras CVE</h1>
 		</div>
 		<div style="padding: 20px; color: #333333;">
 			<p>Olá, <strong>%s</strong>,</p>
 			<p>Sua chave de acesso é: <strong>%s</strong></p>
-			<p>Use esta chave para criar sua conta na plataforma Intelbras CVE. <a href="https://intelbras-cve-pro.com.br/" target="_blank">Clique aqui para acessar.</a></p>
+			<p>Use esta chave para criar sua conta na plataforma Intelbras CVE.</p>
+			<p><a href="https://intelbras-cve-pro.com.br/" target="_blank">Clique aqui para criar a sua conta.</a></p>
 		</div>
 		<div style="background-color: #f4f4f4; color: #555555; text-align: center; padding: 10px;">
 			<p>Este é um e-mail automático, por favor, não responda.</p>
