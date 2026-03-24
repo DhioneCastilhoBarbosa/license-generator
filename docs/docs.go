@@ -384,6 +384,134 @@ const docTemplate = `{
                 }
             }
         },
+        "/deletar-chave": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Remove uma chave de acesso com base no valor da chave informado.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chaves de Acesso"
+                ],
+                "summary": "Deletar chave de acesso",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Chave de acesso",
+                        "name": "chave",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chave removida com sucesso",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Chave não informada",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Chave não encontrada",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/deletar-licenca": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Remove uma licença com base no código informado.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Licenças"
+                ],
+                "summary": "Deletar licença",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Código da licença",
+                        "name": "codigo",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Licença removida com sucesso",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Código não informado",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Licença não encontrada",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/licencas": {
             "get": {
                 "security": [
@@ -716,6 +844,9 @@ const docTemplate = `{
                 "codigo_compra": {
                     "type": "string"
                 },
+                "coringa": {
+                    "type": "boolean"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -755,6 +886,10 @@ const docTemplate = `{
                 "codigo_compra": {
                     "type": "string",
                     "example": "1234abef"
+                },
+                "coringa": {
+                    "description": "opcional",
+                    "type": "boolean"
                 },
                 "email": {
                     "type": "string",

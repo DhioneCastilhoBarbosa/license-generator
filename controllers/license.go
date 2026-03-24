@@ -77,6 +77,21 @@ func CriarLicenca(c *gin.Context) {
 		return
 	}
 
+	ids := make([]uint, len(licencas))
+	for i := range licencas {
+		ids[i] = licencas[i].ID
+	}
+	utils.SaveAuditLog(database.DB, utils.ActorEmailFromGin(c), utils.AuditActionCreate, utils.AuditEntityLicense, nil, nil, map[string]interface{}{
+		"codigos":       codigosGerados,
+		"license_ids":   ids,
+		"quantidade":    req.Quantidade,
+		"nome":          req.Nome,
+		"email":         req.Email,
+		"codigo_compra": req.CodigoCompra,
+		"validade":      req.Validade,
+		"coringa":       req.Coringa,
+	})
+
 	err := utils.EnviarEmail(req.Email, req.Nome, codigosGerados, req.CodigoCompra)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao enviar e-mail", "detalhes": err.Error()})
@@ -148,6 +163,7 @@ func AtualizarStatusLicenca(c *gin.Context) {
 		return
 	}
 
+	antes := licenca
 	licenca.Status = req.Status
 
 	if req.Status == models.StatusAtivada && req.Teste {
@@ -159,6 +175,9 @@ func AtualizarStatusLicenca(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar licença"})
 		return
 	}
+
+	id := licenca.ID
+	utils.SaveAuditLog(database.DB, utils.ActorEmailFromGin(c), utils.AuditActionUpdate, utils.AuditEntityLicense, &id, antes, licenca)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Status atualizado com sucesso"})
 }
@@ -198,4 +217,43 @@ func ListarLicencas(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, licencas)
+}
+
+// DeletarLicenca remove uma licenca pelo codigo.
+// @Summary Deletar licença
+// @Description Remove uma licença com base no código informado.
+// @Tags Licenças
+// @Produce json
+// @Param codigo query string true "Código da licença"
+// @Success 200 {object} map[string]string "Licença removida com sucesso"
+// @Failure 400 {object} map[string]string "Código não informado"
+// @Failure 404 {object} map[string]string "Licença não encontrada"
+// @Failure 500 {object} map[string]string "Erro interno"
+// @Security BearerAuth
+// @Router /deletar-licenca [delete]
+func DeletarLicenca(c *gin.Context) {
+	codigo := strings.TrimSpace(c.Query("codigo"))
+	if codigo == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Informe o código da licença"})
+		return
+	}
+
+	var licenca models.License
+	if err := database.DB.Where("UPPER(codigo) = UPPER(?)", codigo).First(&licenca).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Licença não encontrada"})
+		return
+	}
+
+	antes := licenca
+	id := licenca.ID
+	if err := database.DB.Delete(&licenca).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar licença"})
+		return
+	}
+
+	utils.SaveAuditLog(database.DB, utils.ActorEmailFromGin(c), utils.AuditActionDelete, utils.AuditEntityLicense, &id, antes, map[string]interface{}{
+		"soft_delete": true,
+	})
+
+	c.JSON(http.StatusOK, gin.H{"message": "Licença removida com sucesso"})
 }

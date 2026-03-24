@@ -43,7 +43,7 @@ func main() {
 	utils.SetupEmailConfig()
 	// Inicializa o banco de dados
 	database.Conectar()
-	database.DB.AutoMigrate(&models.License{}, &models.Usuario{}, &models.Chave{})
+	database.DB.AutoMigrate(&models.License{}, &models.Usuario{}, &models.Chave{}, &models.AuditLog{})
 
 	c := cron.New()
 
@@ -84,9 +84,11 @@ func main() {
 	{
 		protected.POST("/criar-licenca", controllers.CriarLicenca)
 		protected.PUT("/atualizar-licenca", controllers.AtualizarStatusLicenca)
+		protected.DELETE("/deletar-licenca", controllers.DeletarLicenca)
 		protected.GET("/licencas", controllers.ListarLicencas)
 		protected.GET("/chaves", controllers.ListarChaves)
 		protected.PUT("/atualizar-status-chave", controllers.AtualizarStatusChave)
+		protected.DELETE("/deletar-chave", controllers.DeletarChave)
 		protected.GET("/buscar-chave", controllers.BuscarChave)
 	}
 

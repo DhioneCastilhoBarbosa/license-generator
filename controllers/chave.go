@@ -5,6 +5,7 @@ import (
 	"cve-pro-license-api/models"
 	"cve-pro-license-api/utils"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,6 +51,9 @@ func CriarChave(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar chave"})
 		return
 	}
+
+	id := chave.ID
+	utils.SaveAuditLog(database.DB, utils.ActorEmailFromGin(c), utils.AuditActionCreate, utils.AuditEntityChave, &id, nil, chave)
 
 	if err := utils.EnviarEmailChave(req.Email, req.Nome, chaveGerada); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao enviar e-mail", "detalhes": err.Error()})
@@ -110,6 +114,7 @@ func AtualizarStatusChave(c *gin.Context) {
 		return
 	}
 
+	antes := chave
 	chave.Status = req.Status
 	chave.Conta = req.Conta
 
@@ -117,6 +122,8 @@ func AtualizarStatusChave(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar status da chave de acesso"})
 		return
 	}
+	id := chave.ID
+	utils.SaveAuditLog(database.DB, utils.ActorEmailFromGin(c), utils.AuditActionUpdate, utils.AuditEntityChave, &id, antes, chave)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Status da chave de acesso atualizado com sucesso",
 		"chave":   chave.Chave,
@@ -269,4 +276,43 @@ func BuscarChave(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, chave)
+}
+
+// DeletarChave remove uma chave de acesso pela propria chave.
+// @Summary Deletar chave de acesso
+// @Description Remove uma chave de acesso com base no valor da chave informado.
+// @Tags Chaves de Acesso
+// @Produce json
+// @Param chave query string true "Chave de acesso"
+// @Success 200 {object} map[string]string "Chave removida com sucesso"
+// @Failure 400 {object} map[string]string "Chave não informada"
+// @Failure 404 {object} map[string]string "Chave não encontrada"
+// @Failure 500 {object} map[string]string "Erro interno"
+// @Security BearerAuth
+// @Router /deletar-chave [delete]
+func DeletarChave(c *gin.Context) {
+	chaveParam := strings.TrimSpace(c.Query("chave"))
+	if chaveParam == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Informe a chave de acesso"})
+		return
+	}
+
+	var chave models.Chave
+	if err := database.DB.Where("UPPER(chave) = UPPER(?)", chaveParam).First(&chave).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Chave de acesso não encontrada"})
+		return
+	}
+
+	antes := chave
+	id := chave.ID
+	if err := database.DB.Delete(&chave).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar chave de acesso"})
+		return
+	}
+
+	utils.SaveAuditLog(database.DB, utils.ActorEmailFromGin(c), utils.AuditActionDelete, utils.AuditEntityChave, &id, antes, map[string]interface{}{
+		"soft_delete": true,
+	})
+
+	c.JSON(http.StatusOK, gin.H{"message": "Chave de acesso removida com sucesso"})
 }

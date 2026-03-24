@@ -72,6 +72,8 @@ definitions:
         type: string
       codigo_compra:
         type: string
+      coringa:
+        type: boolean
       created_at:
         type: string
       deleted_at:
@@ -99,6 +101,9 @@ definitions:
       codigo_compra:
         example: 1234abef
         type: string
+      coringa:
+        description: opcional
+        type: boolean
       email:
         example: email do usuário
         type: string
@@ -369,6 +374,88 @@ paths:
       security:
       - BearerAuth: []
       summary: Criar licença(s)
+      tags:
+      - Licenças
+  /deletar-chave:
+    delete:
+      description: Remove uma chave de acesso com base no valor da chave informado.
+      parameters:
+      - description: Chave de acesso
+        in: query
+        name: chave
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Chave removida com sucesso
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Chave não informada
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Chave não encontrada
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Deletar chave de acesso
+      tags:
+      - Chaves de Acesso
+  /deletar-licenca:
+    delete:
+      description: Remove uma licença com base no código informado.
+      parameters:
+      - description: Código da licença
+        in: query
+        name: codigo
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Licença removida com sucesso
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Código não informado
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Licença não encontrada
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Erro interno
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Deletar licença
       tags:
       - Licenças
   /licencas:
