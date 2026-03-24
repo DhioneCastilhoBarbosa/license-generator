@@ -18,6 +18,18 @@ func GerarCodigo(meses int) string {
 	return fmt.Sprintf("%dM-%s", meses, randomPart)
 }
 
+// GerarCodigoCoringa gera um codigo de licenca coringa com prefixo fixo.
+func GerarCodigoCoringa() string {
+	bytes := make([]byte, 10)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
+	}
+	randomPart := hex.EncodeToString(bytes)
+
+	return fmt.Sprintf("P3D-%s", randomPart)
+}
+
 // GerarChave gera uma chave única
 
 func GerarChave() string {

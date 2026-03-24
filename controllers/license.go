@@ -6,6 +6,7 @@ import (
 	"cve-pro-license-api/utils"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,8 +43,14 @@ func CriarLicenca(c *gin.Context) {
 
 	for i := 0; i < req.Quantidade; i++ {
 		codigo := utils.GerarCodigo(req.Validade)
-
 		statusInicial := models.StatusCriada
+		validade := req.Validade
+
+		if req.Coringa {
+			codigo = utils.GerarCodigoCoringa()
+			statusInicial = models.StatusCoringa
+			validade = 0
+		}
 
 		if !models.IsStatusValido(statusInicial) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Status inválido"})
@@ -55,9 +62,10 @@ func CriarLicenca(c *gin.Context) {
 			Email:        req.Email,
 			CodigoCompra: req.CodigoCompra,
 			Codigo:       codigo,
-			Validade:     req.Validade,
+			Validade:     validade,
 			Status:       statusInicial,
 			Quantidade:   req.Quantidade,
+			Coringa:      req.Coringa,
 		}
 
 		licencas = append(licencas, licenca)
@@ -105,15 +113,26 @@ func AtualizarStatusLicenca(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos"})
 		return
 	}
+	req.Codigo = strings.TrimSpace(req.Codigo)
 
 	var licenca models.License
-	if err := database.DB.Where("codigo = ?", req.Codigo).First(&licenca).Error; err != nil {
+	if err := database.DB.Where("UPPER(codigo) = UPPER(?)", req.Codigo).First(&licenca).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Licença não encontrada"})
 		return
 	}
 
 	if !models.IsStatusValido(req.Status) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Status inválido"})
+		return
+	}
+
+	// Licenca coringa (prefixo P3D) nao pode ter status alterado.
+	codigoNormalizado := strings.ToUpper(strings.TrimSpace(licenca.Codigo))
+	if licenca.Coringa || licenca.Status == models.StatusCoringa || strings.HasPrefix(codigoNormalizado, "P3D") {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Licença coringa validada com sucesso",
+			"codigo":  licenca.Codigo,
+		})
 		return
 	}
 

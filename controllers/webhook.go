@@ -129,7 +129,7 @@ func fetchOrderDetails(orderID string) error {
 			if err := utils.CriarLicencaAutomatica(reqLicenca); err != nil {
 				log.Println("❌ Erro ao criar licença automaticamente:", err)
 			} else {
-				log.Printf("✅ Licença criada para item ID %d com validade %d meses\n", item.ID, validade)
+				log.Printf("✅ Licença criada para item ID %s com validade %d meses\n", item.ID, validade)
 			}
 		}
 	}

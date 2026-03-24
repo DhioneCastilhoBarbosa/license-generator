@@ -12,15 +12,23 @@ func CriarLicencaAutomatica(req models.LicenseRequest) error {
 
 	for i := 0; i < req.Quantidade; i++ {
 		codigo := GerarCodigo(req.Validade)
+		status := models.StatusCriada
+		validade := req.Validade
+		if req.Coringa {
+			codigo = GerarCodigoCoringa()
+			status = models.StatusCoringa
+			validade = 0
+		}
 
 		licenca := models.License{
 			Nome:         req.Nome,
 			Email:        req.Email,
 			CodigoCompra: req.CodigoCompra,
 			Codigo:       codigo,
-			Validade:     req.Validade,
-			Status:       models.StatusCriada,
+			Validade:     validade,
+			Status:       status,
 			Quantidade:   req.Quantidade,
+			Coringa:      req.Coringa,
 		}
 
 		licencas = append(licencas, licenca)

@@ -21,6 +21,11 @@ func VerificarLicencasExpiradas() {
 	now := time.Now()
 
 	for _, licenca := range licencas {
+		// Licenca coringa nao participa de ciclo de validade.
+		if licenca.Coringa {
+			continue
+		}
+
 		// TESTE: expira em 1 minuto
 		if strings.ToUpper(licenca.CodigoCompra) == "TESTE" {
 			dataExpiracao := licenca.UpdatedAt.Add(1 * time.Minute)

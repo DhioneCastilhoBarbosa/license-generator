@@ -18,6 +18,7 @@ type License struct {
 	Quantidade            int        `json:"quantidade"` // Novo campo para múltiplas licenças
 	UltimoAvisoRenovacao  bool       `gorm:"column:ultimo_aviso_renovacao"`
 	AvisoExpiracaoEnviado bool       `gorm:"column:aviso_expiracao_enviado"`
+	Coringa               bool       `json:"coringa" gorm:"default:false"`
 }
 
 type LicenseRequest struct {
@@ -27,6 +28,7 @@ type LicenseRequest struct {
 	Validade     int    `json:"validade" example:"36"`
 	Quantidade   int    `json:"quantidade"` // Novo campo para múltiplas licenças
 	Teste        bool   `json:"teste"`      // opcional
+	Coringa      bool   `json:"coringa"`    // opcional
 }
 
 // ErrorResponse representa uma mensagem de erro genérica
@@ -38,11 +40,12 @@ const (
 	StatusCriada   = "Criada"
 	StatusAtivada  = "Ativada"
 	StatusExpirada = "Expirada"
+	StatusCoringa  = "Coringa"
 )
 
 func IsStatusValido(status string) bool {
 	switch status {
-	case StatusCriada, StatusAtivada, StatusExpirada:
+	case StatusCriada, StatusAtivada, StatusExpirada, StatusCoringa:
 		return true
 	default:
 		return false
