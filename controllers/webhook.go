@@ -52,7 +52,7 @@ func fetchOrderDetails(orderID string) error {
 	appKey := os.Getenv("VTEX_APP_KEY")
 	appToken := os.Getenv("VTEX_APP_TOKEN")
 
-	url := fmt.Sprintf("https://lojaintelbras.myvtex.com/api/oms/pvt/orders/%s", orderID)
+	url := fmt.Sprintf("https://intelbras.myvtex.com/api/oms/pvt/orders/%s", orderID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
