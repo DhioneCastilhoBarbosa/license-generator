@@ -95,11 +95,11 @@ func fetchOrderDetails(orderID string) error {
 
 	// Mapeamento de validade por ID
 	validadePorID := map[int]int{
-		1991061: 12,
-		1991062: 24,
-		1991063: 36,
-		1991064: 48,
-		1991065: 60,
+		9100316: 12,
+		9100317: 24,
+		9100315: 36,
+		9100318: 48,
+		9100319: 60,
 		//4820091: 1, // compra teste sensor de presença
 	}
 
