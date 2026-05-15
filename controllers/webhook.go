@@ -100,7 +100,8 @@ func fetchOrderDetails(orderID string) error {
 		9100315: 36,
 		9100318: 48,
 		9100319: 60,
-		//4820091: 1, // compra teste sensor de presença
+		9100657: 12, // serviço de monitoramento AC
+		9100694: 12, // serviço de monitoramento DC
 	}
 
 	// Verificar se existe ao menos 1 item válido
