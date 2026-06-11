@@ -3,8 +3,11 @@ package controllers
 import (
 	"cve-pro-license-api/database"
 	"cve-pro-license-api/models"
+	"cve-pro-license-api/utils"
+	"errors"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -37,7 +40,7 @@ func gerarToken(email string) (string, error) {
 
 // CadastrarUsuario cadastra um novo usuário.
 // @Summary Cadastro de usuário
-// @Description Cria um novo usuário no banco de dados.
+// @Description Cria um novo usuário no banco de dados com nível visualizador.
 // @Tags Autenticação
 // @Accept json
 // @Produce json
@@ -46,24 +49,33 @@ func gerarToken(email string) (string, error) {
 // @Failure 400 {object} map[string]string "Erro nos dados enviados"
 // @Router /cadastrar-usuario [post]
 func CadastrarUsuario(c *gin.Context) {
-	var usuario models.Usuario
-	if err := c.ShouldBindJSON(&usuario); err != nil {
+	var req models.UsuarioRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"erro": "Dados inválidos"})
 		return
 	}
 
-	// Define permissão padrão
-	usuario.TemPermissao = false
+	req.Nome = strings.TrimSpace(req.Nome)
+	req.Email = strings.TrimSpace(req.Email)
 
-	// Hash da senha
-	hash, err := HashSenha(usuario.Senha)
+	if req.Nome == "" || req.Email == "" || req.Senha == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"erro": "Nome, e-mail e senha são obrigatórios"})
+		return
+	}
+
+	hash, err := HashSenha(req.Senha)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"erro": "Erro ao criptografar senha"})
 		return
 	}
-	usuario.Senha = hash
 
-	// Salva no banco
+	usuario := models.Usuario{
+		Nome:        req.Nome,
+		Email:       req.Email,
+		Senha:       hash,
+		NivelAcesso: models.NivelVisualizador,
+	}
+
 	if err := database.DB.Create(&usuario).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"erro": "Erro ao cadastrar usuário"})
 		return
@@ -98,26 +110,171 @@ func Login(c *gin.Context) {
 	var usuario models.Usuario
 	database.DB.Where("email = ?", credenciais.Email).First(&usuario)
 
-	// Verifica se usuário existe e senha está correta
 	if usuario.Email == "" || !verificarSenha(usuario.Senha, credenciais.Senha) {
 		c.JSON(http.StatusUnauthorized, gin.H{"erro": "Credenciais inválidas"})
 		return
 	}
 
-	// Verifica permissão
-	if !usuario.TemPermissao {
+	if !models.IsNivelValido(usuario.NivelAcesso) {
 		c.JSON(http.StatusForbidden, gin.H{"erro": "Usuário sem permissão de acesso"})
 		return
 	}
 
-	// Gera token JWT
 	token, err := gerarToken(usuario.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"erro": "Erro ao gerar token"})
 		return
 	}
 
-	//println("Token gerado:", token)
+	c.JSON(http.StatusOK, gin.H{
+		"token":        token,
+		"nome":         usuario.Nome,
+		"nivel_acesso": usuario.NivelAcesso,
+	})
+}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+// ListarUsuarios retorna todos os usuários cadastrados.
+// @Summary Listar usuários
+// @Description Lista todos os usuários. Acesso exclusivo de superAdmin.
+// @Tags Usuários
+// @Produce json
+// @Success 200 {array} models.UsuarioResponse
+// @Failure 401 {object} map[string]string "Não autorizado"
+// @Failure 403 {object} map[string]string "Acesso negado"
+// @Security BearerAuth
+// @Router /usuarios [get]
+func ListarUsuarios(c *gin.Context) {
+	var usuarios []models.Usuario
+	if err := database.DB.Order("created_at desc").Find(&usuarios).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": "Erro ao listar usuários"})
+		return
+	}
+
+	resposta := make([]models.UsuarioResponse, len(usuarios))
+	for i, u := range usuarios {
+		resposta[i] = models.UsuarioParaResponse(u)
+	}
+
+	c.JSON(http.StatusOK, resposta)
+}
+
+// AtualizarUsuario atualiza nome e nível de acesso de um usuário.
+// @Summary Atualizar usuário
+// @Description Atualiza nome e nível de acesso. Acesso exclusivo de superAdmin.
+// @Tags Usuários
+// @Accept json
+// @Produce json
+// @Param id path int true "ID do usuário"
+// @Param request body models.UsuarioUpdateRequest true "Dados para atualização"
+// @Success 200 {object} models.UsuarioResponse
+// @Failure 400 {object} map[string]string "Erro nos dados enviados"
+// @Failure 404 {object} map[string]string "Usuário não encontrado"
+// @Security BearerAuth
+// @Router /usuarios/{id} [put]
+func AtualizarUsuario(c *gin.Context) {
+	id := c.Param("id")
+
+	var usuario models.Usuario
+	if err := database.DB.First(&usuario, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"erro": "Usuário não encontrado"})
+		return
+	}
+
+	var req models.UsuarioUpdateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"erro": "Dados inválidos"})
+		return
+	}
+
+	antes := models.UsuarioParaResponse(usuario)
+
+	if nome := strings.TrimSpace(req.Nome); nome != "" {
+		usuario.Nome = nome
+	}
+
+	if req.NivelAcesso != "" {
+		if !models.IsNivelValido(req.NivelAcesso) {
+			c.JSON(http.StatusBadRequest, gin.H{"erro": "Nível de acesso inválido. Use: superAdmin, admin ou visualizador"})
+			return
+		}
+
+		if usuario.NivelAcesso == models.NivelSuperAdmin && req.NivelAcesso != models.NivelSuperAdmin {
+			if err := garantirOutroSuperAdmin(usuario.ID); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"erro": err.Error()})
+				return
+			}
+		}
+
+		usuario.NivelAcesso = req.NivelAcesso
+	}
+
+	if err := database.DB.Save(&usuario).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": "Erro ao atualizar usuário"})
+		return
+	}
+
+	depois := models.UsuarioParaResponse(usuario)
+	entityID := usuario.ID
+	utils.SaveAuditLog(database.DB, utils.ActorEmailFromGin(c), utils.AuditActionUpdate, utils.AuditEntityUsuario, &entityID, antes, depois)
+
+	c.JSON(http.StatusOK, depois)
+}
+
+// DeletarUsuario remove um usuário do sistema.
+// @Summary Deletar usuário
+// @Description Remove um usuário. Acesso exclusivo de superAdmin.
+// @Tags Usuários
+// @Produce json
+// @Param id path int true "ID do usuário"
+// @Success 200 {object} map[string]string "Usuário removido com sucesso"
+// @Failure 400 {object} map[string]string "Operação não permitida"
+// @Failure 404 {object} map[string]string "Usuário não encontrado"
+// @Security BearerAuth
+// @Router /usuarios/{id} [delete]
+func DeletarUsuario(c *gin.Context) {
+	id := c.Param("id")
+
+	var usuario models.Usuario
+	if err := database.DB.First(&usuario, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"erro": "Usuário não encontrado"})
+		return
+	}
+
+	actorID, _ := c.Get("user_id")
+	if actorID == usuario.ID {
+		c.JSON(http.StatusBadRequest, gin.H{"erro": "Não é possível excluir o próprio usuário"})
+		return
+	}
+
+	if usuario.NivelAcesso == models.NivelSuperAdmin {
+		if err := garantirOutroSuperAdmin(usuario.ID); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"erro": err.Error()})
+			return
+		}
+	}
+
+	antes := models.UsuarioParaResponse(usuario)
+	entityID := usuario.ID
+
+	if err := database.DB.Delete(&usuario).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": "Erro ao deletar usuário"})
+		return
+	}
+
+	utils.SaveAuditLog(database.DB, utils.ActorEmailFromGin(c), utils.AuditActionDelete, utils.AuditEntityUsuario, &entityID, antes, nil)
+
+	c.JSON(http.StatusOK, gin.H{"mensagem": "Usuário removido com sucesso"})
+}
+
+func garantirOutroSuperAdmin(excluirID uint) error {
+	var count int64
+	if err := database.DB.Model(&models.Usuario{}).
+		Where("nivel_acesso = ? AND id <> ?", models.NivelSuperAdmin, excluirID).
+		Count(&count).Error; err != nil {
+		return err
+	}
+	if count == 0 {
+		return errors.New("deve existir ao menos um superAdmin no sistema")
+	}
+	return nil
 }

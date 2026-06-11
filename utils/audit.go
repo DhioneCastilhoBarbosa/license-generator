@@ -16,6 +16,7 @@ const (
 
 	AuditEntityLicense = "license"
 	AuditEntityChave   = "chave"
+	AuditEntityUsuario = "usuario"
 )
 
 // ActorEmailFromGin retorna o email do JWT (middleware deve popular "user_email").

@@ -1,0 +1,255 @@
+{
+	"info": {
+		"_postman_id": "cve-pro-usuarios-collection",
+		"name": "CVE Pro - Usuários e Níveis de Acesso",
+		"description": "Collection para testar cadastro, login e gestão de usuários (superAdmin).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8085"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "usuarioId",
+			"value": "1"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Cadastrar usuário (público)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Maria Visualizadora\",\n  \"email\": \"maria@exemplo.com\",\n  \"senha\": \"senha123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/cadastrar-usuario",
+					"host": ["{{baseUrl}}"],
+					"path": ["cadastrar-usuario"]
+				},
+				"description": "Cria usuário com nível visualizador (padrão). Não exige token."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Login (superAdmin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    const json = pm.response.json();",
+							"    pm.collectionVariables.set('token', json.token);",
+							"    pm.test('Token recebido', () => pm.expect(json.token).to.be.a('string'));",
+							"    pm.test('Nível retornado', () => pm.expect(json.nivel_acesso).to.eql('superAdmin'));",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@exemplo.com\",\n  \"senha\": \"senha123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["login"]
+				},
+				"description": "Faça login com um usuário superAdmin. O script salva o token automaticamente na variável {{token}}."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Listar usuários (superAdmin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Status 200', () => pm.response.to.have.status(200));",
+							"if (pm.response.code === 200) {",
+							"    const lista = pm.response.json();",
+							"    if (lista.length > 0) {",
+							"        pm.collectionVariables.set('usuarioId', lista[0].id);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/usuarios",
+					"host": ["{{baseUrl}}"],
+					"path": ["usuarios"]
+				},
+				"description": "Lista todos os usuários. Apenas superAdmin."
+			},
+			"response": []
+		},
+		{
+			"name": "4. Promover usuário para admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"nome\": \"Maria Admin\",\n  \"nivel_acesso\": \"admin\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/usuarios/{{usuarioId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["usuarios", "{{usuarioId}}"]
+				},
+				"description": "Atualiza nome e nível de acesso. Valores válidos: superAdmin, admin, visualizador."
+			},
+			"response": []
+		},
+		{
+			"name": "5. Deletar usuário",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/usuarios/{{usuarioId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["usuarios", "{{usuarioId}}"]
+				},
+				"description": "Remove um usuário. Não é possível excluir a si mesmo nem o último superAdmin."
+			},
+			"response": []
+		},
+		{
+			"name": "6. Login (admin) - teste acesso negado em /usuarios",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    pm.collectionVariables.set('token', pm.response.json().token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"maria@exemplo.com\",\n  \"senha\": \"senha123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["login"]
+				},
+				"description": "Login como admin para validar que /usuarios retorna 403."
+			},
+			"response": []
+		},
+		{
+			"name": "7. Listar usuários (admin) - deve retornar 403",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Acesso negado para admin', () => pm.response.to.have.status(403));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/usuarios",
+					"host": ["{{baseUrl}}"],
+					"path": ["usuarios"]
+				},
+				"description": "Admin não deve acessar gestão de usuários."
+			},
+			"response": []
+		}
+	]
+}

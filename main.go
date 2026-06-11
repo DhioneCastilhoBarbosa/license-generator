@@ -44,6 +44,7 @@ func main() {
 	// Inicializa o banco de dados
 	database.Conectar()
 	database.DB.AutoMigrate(&models.License{}, &models.Usuario{}, &models.Chave{}, &models.AuditLog{})
+	migrarPermissaoLegada()
 
 	c := cron.New()
 
@@ -82,15 +83,49 @@ func main() {
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
-		protected.POST("/criar-licenca", controllers.CriarLicenca)
-		protected.PUT("/atualizar-licenca", controllers.AtualizarStatusLicenca)
-		protected.DELETE("/deletar-licenca", controllers.DeletarLicenca)
+		// Leitura: superAdmin, admin e visualizador
 		protected.GET("/licencas", controllers.ListarLicencas)
 		protected.GET("/chaves", controllers.ListarChaves)
-		protected.PUT("/atualizar-status-chave", controllers.AtualizarStatusChave)
-		protected.DELETE("/deletar-chave", controllers.DeletarChave)
 		protected.GET("/buscar-chave", controllers.BuscarChave)
+
+		// Escrita: superAdmin e admin
+		escrita := protected.Group("/")
+		escrita.Use(middleware.RequireEscrita())
+		{
+			escrita.POST("/criar-licenca", controllers.CriarLicenca)
+			escrita.PUT("/atualizar-licenca", controllers.AtualizarStatusLicenca)
+			escrita.DELETE("/deletar-licenca", controllers.DeletarLicenca)
+			escrita.PUT("/atualizar-status-chave", controllers.AtualizarStatusChave)
+			escrita.DELETE("/deletar-chave", controllers.DeletarChave)
+		}
+
+		// Gestão de usuários: apenas superAdmin
+		usuarios := protected.Group("/usuarios")
+		usuarios.Use(middleware.RequireNivel(models.NivelSuperAdmin))
+		{
+			usuarios.GET("", controllers.ListarUsuarios)
+			usuarios.PUT("/:id", controllers.AtualizarUsuario)
+			usuarios.DELETE("/:id", controllers.DeletarUsuario)
+		}
 	}
 
 	r.Run(":8085") // Inicia o servidor na porta 8085
+}
+
+func migrarPermissaoLegada() {
+	if !database.DB.Migrator().HasColumn(&models.Usuario{}, "tem_permissao") {
+		return
+	}
+
+	database.DB.Exec(`
+		UPDATE usuarios
+		SET nivel_acesso = 'admin'
+		WHERE tem_permissao = true AND (nivel_acesso = '' OR nivel_acesso IS NULL)
+	`)
+	database.DB.Exec(`
+		UPDATE usuarios
+		SET nivel_acesso = 'visualizador'
+		WHERE nivel_acesso = '' OR nivel_acesso IS NULL
+	`)
+	database.DB.Migrator().DropColumn(&models.Usuario{}, "tem_permissao")
 }

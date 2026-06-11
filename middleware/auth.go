@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"cve-pro-license-api/database"
+	"cve-pro-license-api/models"
 	"net/http"
 	"os"
 	"strings"
@@ -14,7 +16,6 @@ var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
-		//println("Token recebido:", tokenString) // **Exibir o token recebido**
 
 		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer ") {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token ausente"})
@@ -23,7 +24,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-		//println("Token sem prefixo:", tokenString) // **Exibir o token sem "Bearer "**
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -33,17 +33,42 @@ func AuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			//println("Erro ao validar token:", err.Error()) // **Exibir erro**
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token inválido"})
 			c.Abort()
 			return
 		}
 
-		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			if email, ok := claims["email"].(string); ok {
-				c.Set("user_email", email)
-			}
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token inválido"})
+			c.Abort()
+			return
 		}
+
+		email, ok := claims["email"].(string)
+		if !ok || email == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token inválido"})
+			c.Abort()
+			return
+		}
+
+		var usuario models.Usuario
+		if err := database.DB.Where("email = ?", email).First(&usuario).Error; err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário não encontrado"})
+			c.Abort()
+			return
+		}
+
+		if !models.IsNivelValido(usuario.NivelAcesso) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Usuário sem permissão de acesso"})
+			c.Abort()
+			return
+		}
+
+		c.Set("user_email", usuario.Email)
+		c.Set("user_id", usuario.ID)
+		c.Set("user_nome", usuario.Nome)
+		c.Set("user_nivel", usuario.NivelAcesso)
 
 		c.Next()
 	}
