@@ -44,6 +44,7 @@ func main() {
 	// Inicializa o banco de dados
 	database.Conectar()
 	database.DB.AutoMigrate(&models.License{}, &models.Usuario{}, &models.Chave{}, &models.AuditLog{})
+	migrarSchemaUsuario()
 	migrarPermissaoLegada()
 
 	c := cron.New()
@@ -110,6 +111,22 @@ func main() {
 	}
 
 	r.Run(":8085") // Inicia o servidor na porta 8085
+}
+
+func migrarSchemaUsuario() {
+	migrator := database.DB.Migrator()
+	usuario := &models.Usuario{}
+
+	if !migrator.HasColumn(usuario, "nome") {
+		if err := migrator.AddColumn(usuario, "Nome"); err != nil {
+			log.Printf("aviso: não foi possível adicionar coluna nome em usuarios: %v", err)
+		}
+	}
+	if !migrator.HasColumn(usuario, "nivel_acesso") {
+		if err := migrator.AddColumn(usuario, "NivelAcesso"); err != nil {
+			log.Printf("aviso: não foi possível adicionar coluna nivel_acesso em usuarios: %v", err)
+		}
+	}
 }
 
 func migrarPermissaoLegada() {

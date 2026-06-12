@@ -5,6 +5,7 @@ import (
 	"cve-pro-license-api/models"
 	"cve-pro-license-api/utils"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -12,10 +13,39 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+var (
+	jwtSecret            = []byte(os.Getenv("JWT_SECRET"))
+	errEmailJaCadastrado = errors.New("E-mail já cadastrado")
+)
+
+func normalizarEmail(email string) string {
+	return strings.ToLower(strings.TrimSpace(email))
+}
+
+func isDuplicateKeyError(err error) bool {
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23505"
+}
+
+func liberarEmailParaCadastro(email string) error {
+	var existente models.Usuario
+	err := database.DB.Unscoped().Where("LOWER(email) = ?", email).First(&existente).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if existente.DeletedAt.Valid {
+		return database.DB.Unscoped().Delete(&existente).Error
+	}
+	return errEmailJaCadastrado
+}
 
 func HashSenha(senha string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(senha), bcrypt.DefaultCost)
@@ -56,11 +86,21 @@ func CadastrarUsuario(c *gin.Context) {
 	}
 
 	req.Nome = strings.TrimSpace(req.Nome)
-	req.Email = strings.TrimSpace(req.Email)
+	req.Email = normalizarEmail(req.Email)
 	req.Senha = strings.TrimSpace(req.Senha)
 
 	if req.Email == "" || req.Senha == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"erro": "E-mail e senha são obrigatórios"})
+		return
+	}
+
+	if err := liberarEmailParaCadastro(req.Email); err != nil {
+		if errors.Is(err, errEmailJaCadastrado) {
+			c.JSON(http.StatusBadRequest, gin.H{"erro": err.Error()})
+			return
+		}
+		log.Printf("erro ao verificar e-mail para cadastro: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"erro": "Erro ao verificar e-mail"})
 		return
 	}
 
@@ -86,6 +126,11 @@ func CadastrarUsuario(c *gin.Context) {
 	}
 
 	if err := database.DB.Create(&usuario).Error; err != nil {
+		if isDuplicateKeyError(err) {
+			c.JSON(http.StatusBadRequest, gin.H{"erro": "E-mail já cadastrado"})
+			return
+		}
+		log.Printf("erro ao cadastrar usuário (%s): %v", req.Email, err)
 		c.JSON(http.StatusBadRequest, gin.H{"erro": "Erro ao cadastrar usuário"})
 		return
 	}
@@ -118,8 +163,10 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	credenciais.Email = normalizarEmail(credenciais.Email)
+
 	var usuario models.Usuario
-	database.DB.Where("email = ?", credenciais.Email).First(&usuario)
+	database.DB.Where("LOWER(email) = ?", credenciais.Email).First(&usuario)
 
 	if usuario.Email == "" || !verificarSenha(usuario.Senha, credenciais.Senha) {
 		c.JSON(http.StatusUnauthorized, gin.H{"erro": "Credenciais inválidas"})

@@ -53,7 +53,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		var usuario models.Usuario
-		if err := database.DB.Where("email = ?", email).First(&usuario).Error; err != nil {
+		if err := database.DB.Where("LOWER(email) = ?", strings.ToLower(email)).First(&usuario).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário não encontrado"})
 			c.Abort()
 			return
