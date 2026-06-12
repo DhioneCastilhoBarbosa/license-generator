@@ -6,6 +6,7 @@ const (
 	NivelSuperAdmin   = "superAdmin"
 	NivelAdmin        = "admin"
 	NivelVisualizador = "visualizador"
+	NivelPendente     = "pendente"
 )
 
 func IsNivelValido(nivel string) bool {
@@ -28,15 +29,15 @@ type Usuario struct {
 	Nome        string `json:"nome"`
 	Email       string `json:"email" gorm:"unique"`
 	Senha       string `json:"senha"`
-	NivelAcesso string `json:"nivel_acesso" gorm:"default:visualizador"`
+	NivelAcesso string `json:"nivel_acesso" gorm:"default:pendente"`
 }
 
 // UsuarioRequest representa os dados enviados para cadastrar um usuário.
 // @name UsuarioRequest
 type UsuarioRequest struct {
-	Nome  string `json:"nome" example:"João Silva"`
-	Email string `json:"email" example:"teste@exemplo.com"`
-	Senha string `json:"senha" example:"123456"`
+	Nome  string `json:"nome" form:"nome" example:"João Silva"`
+	Email string `json:"email" form:"email" example:"teste@exemplo.com"`
+	Senha string `json:"senha" form:"senha" example:"123456"`
 }
 
 // UsuarioUpdateRequest representa os dados para atualizar um usuário.

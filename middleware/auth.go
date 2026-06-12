@@ -59,8 +59,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if !models.IsNivelValido(usuario.NivelAcesso) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Usuário sem permissão de acesso"})
+		if usuario.NivelAcesso == models.NivelPendente || !models.IsNivelValido(usuario.NivelAcesso) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Conta aguardando aprovação do administrador"})
 			c.Abort()
 			return
 		}

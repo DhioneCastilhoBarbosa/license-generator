@@ -40,7 +40,7 @@ func gerarToken(email string) (string, error) {
 
 // CadastrarUsuario cadastra um novo usuário.
 // @Summary Cadastro de usuário
-// @Description Cria um novo usuário no banco de dados com nível visualizador.
+// @Description Cria um novo usuário aguardando aprovação (sem acesso até o superAdmin definir o nível).
 // @Tags Autenticação
 // @Accept json
 // @Produce json
@@ -50,17 +50,26 @@ func gerarToken(email string) (string, error) {
 // @Router /cadastrar-usuario [post]
 func CadastrarUsuario(c *gin.Context) {
 	var req models.UsuarioRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"erro": "Dados inválidos"})
 		return
 	}
 
 	req.Nome = strings.TrimSpace(req.Nome)
 	req.Email = strings.TrimSpace(req.Email)
+	req.Senha = strings.TrimSpace(req.Senha)
 
-	if req.Nome == "" || req.Email == "" || req.Senha == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"erro": "Nome, e-mail e senha são obrigatórios"})
+	if req.Email == "" || req.Senha == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"erro": "E-mail e senha são obrigatórios"})
 		return
+	}
+
+	if req.Nome == "" {
+		if at := strings.Index(req.Email, "@"); at > 0 {
+			req.Nome = req.Email[:at]
+		} else {
+			req.Nome = req.Email
+		}
 	}
 
 	hash, err := HashSenha(req.Senha)
@@ -73,7 +82,7 @@ func CadastrarUsuario(c *gin.Context) {
 		Nome:        req.Nome,
 		Email:       req.Email,
 		Senha:       hash,
-		NivelAcesso: models.NivelVisualizador,
+		NivelAcesso: models.NivelPendente,
 	}
 
 	if err := database.DB.Create(&usuario).Error; err != nil {
@@ -81,7 +90,9 @@ func CadastrarUsuario(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"mensagem": "Usuário cadastrado com sucesso"})
+	c.JSON(http.StatusOK, gin.H{
+		"mensagem": "Usuário cadastrado com sucesso. Aguarde aprovação do administrador para acessar o sistema.",
+	})
 }
 
 // Login autentica um usuário e retorna um token JWT.
@@ -115,8 +126,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	if !models.IsNivelValido(usuario.NivelAcesso) {
-		c.JSON(http.StatusForbidden, gin.H{"erro": "Usuário sem permissão de acesso"})
+	if usuario.NivelAcesso == models.NivelPendente || !models.IsNivelValido(usuario.NivelAcesso) {
+		c.JSON(http.StatusForbidden, gin.H{"erro": "Conta aguardando aprovação do administrador"})
 		return
 	}
 
@@ -193,7 +204,7 @@ func AtualizarUsuario(c *gin.Context) {
 	}
 
 	if req.NivelAcesso != "" {
-		if !models.IsNivelValido(req.NivelAcesso) {
+		if req.NivelAcesso == models.NivelPendente || !models.IsNivelValido(req.NivelAcesso) {
 			c.JSON(http.StatusBadRequest, gin.H{"erro": "Nível de acesso inválido. Use: superAdmin, admin ou visualizador"})
 			return
 		}

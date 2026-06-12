@@ -39,7 +39,7 @@
 					"host": ["{{baseUrl}}"],
 					"path": ["cadastrar-usuario"]
 				},
-				"description": "Cria usuário com nível visualizador (padrão). Não exige token."
+				"description": "Cria usuário com nível pendente (sem acesso). SuperAdmin deve aprovar via PUT /usuarios/:id. Não exige token."
 			},
 			"response": []
 		},
