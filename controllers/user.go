@@ -94,6 +94,11 @@ func CadastrarUsuario(c *gin.Context) {
 		return
 	}
 
+	if err := utils.ValidarSenha(req.Senha); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"erro": err.Error()})
+		return
+	}
+
 	if err := liberarEmailParaCadastro(req.Email); err != nil {
 		if errors.Is(err, errEmailJaCadastrado) {
 			c.JSON(http.StatusBadRequest, gin.H{"erro": err.Error()})

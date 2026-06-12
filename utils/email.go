@@ -198,3 +198,28 @@ func EnviarEmailChave(destinatario, nome, chave string) error {
 
 	return sendEmail(destinatario, "Sua Chave de Acesso a Plataforma Intelbras CVE", body)
 }
+
+func EnviarEmailRecuperacaoSenha(destinatario, nome, link string, validadeMinutos int) error {
+	body := fmt.Sprintf(`<div style="font-family: Arial, sans-serif; background-color: #f4f4f4;">
+	<div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; overflow:hidden;">
+		<div style="background-color: #00a335; color: #ffffff; padding: 20px; text-align: center;">
+			<h1 style="margin:0;">Recuperação de Senha - CVE-Pro</h1>
+		</div>
+		<div style="padding: 24px; color: #333333; font-size:14px; line-height:1.6;">
+			<p>Olá, <strong>%s</strong>,</p>
+			<p>Recebemos uma solicitação para redefinir sua senha. O link abaixo é válido por <strong>%d minutos</strong> e pode ser usado apenas uma vez.</p>
+			<a href="%s"
+			   style="display:block; width:100%%; max-width:320px; margin:20px auto; text-align:center; background:#007bff; color:#ffffff; padding:14px 0; text-decoration:none; border-radius:6px; font-weight:bold;">
+			   Redefinir senha
+			</a>
+			<p>Se você não solicitou esta alteração, ignore este e-mail. Sua senha permanecerá a mesma.</p>
+		</div>
+		<div style="background-color: #f4f4f4; color: #555555; text-align: center; padding: 10px;">
+			<p style="margin:5px 0;">Este é um e-mail automático, por favor, não responda.</p>
+			<p style="margin:5px 0;">Intelbras &copy; 2025</p>
+		</div>
+	</div>
+</div>`, nome, validadeMinutos, link)
+
+	return sendEmail(destinatario, "Recuperação de Senha - Plataforma Intelbras CVE-Pro", body)
+}

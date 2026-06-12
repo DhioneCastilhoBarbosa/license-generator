@@ -43,7 +43,7 @@ func main() {
 	utils.SetupEmailConfig()
 	// Inicializa o banco de dados
 	database.Conectar()
-	database.DB.AutoMigrate(&models.License{}, &models.Usuario{}, &models.Chave{}, &models.AuditLog{})
+	database.DB.AutoMigrate(&models.License{}, &models.Usuario{}, &models.Chave{}, &models.AuditLog{}, &models.PasswordResetToken{})
 	migrarSchemaUsuario()
 	migrarPermissaoLegada()
 
@@ -76,6 +76,8 @@ func main() {
 	// Rotas para autenticação
 	r.POST("/cadastrar-usuario", controllers.CadastrarUsuario)
 	r.POST("/login", controllers.Login)
+	r.POST("/solicitar-recuperacao-senha", controllers.SolicitarRecuperacaoSenha)
+	r.POST("/redefinir-senha", controllers.RedefinirSenha)
 	r.POST("/webhook/vtex-vendas", controllers.VtexWebhook)
 	r.POST("/criar-chave", controllers.CriarChave)
 	r.GET("/recuperar-chave", controllers.RecuperarChaves)
